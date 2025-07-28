@@ -1,15 +1,11 @@
-# Etapa 1: Build de Angular
-FROM node:18-alpine AS builder
+ext
+FROM node:18 as build
 WORKDIR /app
-COPY package.json package-lock.json ./
-RUN npm ci
+COPY package*.json ./
+RUN npm install
 COPY . .
-RUN npm run build -- --configuration production
+RUN npm run build --prod
 
-
-# Etapa 2: Servir la app estática con Nginx
 FROM nginx:alpine
-COPY --from=builder /app/dist/demo/browser /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=build /app/dist/mvp-sistema-presupuesto-anual /usr/share/nginx/html
 EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
