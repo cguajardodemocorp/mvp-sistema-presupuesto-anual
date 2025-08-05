@@ -9,13 +9,14 @@ import { ExcelRow } from '../../models/excel-data.model';
   template: `
     <div class="data-grid-container" *ngIf="data && data.length > 0">
       <div class="grid-header">
-        <h3>Vista previa Plan Anual</h3>
+        <h3>{{ getTituloGrid() }}</h3>
         <span class="record-count">{{ data.length }} registros</span>
       </div>
       
       <div class="table-container">
         <table class="table">
-          <thead>
+          <!-- Header para Plan Anual -->
+          <thead *ngIf="tipoGrid === 'plan-anual'">
             <tr>
               <th>#</th>
               <th>País</th>
@@ -41,31 +42,63 @@ import { ExcelRow } from '../../models/excel-data.model';
               <th>Dic</th>
             </tr>
           </thead>
-          <tbody>
-            <tr *ngFor="let row of paginatedData; let i = index" class="fade-in">
-              <td class="row-number">{{ (currentPage - 1) * pageSize + i + 1 }}</td>
-              <td>{{ row.pais }}</td>
-              <td>{{ row.razonSocial }}</td>
-              <td>{{ row.ceco }}</td>
-              <td>{{ row.cuenta }}</td>
-              <td>{{ row.areaPlanifica }}</td>
-              <td>{{ row.recurso }}</td>
-              <td>{{ row.localidadFisica }}</td>
-              <td class="amount">{{ formatAmount(row.tarifa) }}</td>
-              <td>{{ row.moneda }}</td>
-              <td class="amount">{{ formatAmount(row.planEnero) }}</td>
-              <td class="amount">{{ formatAmount(row.planFebrero) }}</td>
-              <td class="amount">{{ formatAmount(row.planMarzo) }}</td>
-              <td class="amount">{{ formatAmount(row.planAbril) }}</td>
-              <td class="amount">{{ formatAmount(row.planMayo) }}</td>
-              <td class="amount">{{ formatAmount(row.planJunio) }}</td>
-              <td class="amount">{{ formatAmount(row.planJulio) }}</td>
-              <td class="amount">{{ formatAmount(row.planAgosto) }}</td>
-              <td class="amount">{{ formatAmount(row.planSeptiembre) }}</td>
-              <td class="amount">{{ formatAmount(row.planOctubre) }}</td>
-              <td class="amount">{{ formatAmount(row.planNoviembre) }}</td>
-              <td class="amount">{{ formatAmount(row.planDiciembre) }}</td>
+          
+          <!-- Header para Gasto Real -->
+          <thead *ngIf="tipoGrid === 'gasto-real'">
+            <tr>
+              <th>#</th>
+              <th>País</th>
+              <th>Razón Social</th>
+              <th>CeCo</th>
+              <th>Cuenta</th>
+              <th>Moneda</th>
+              <th>Monto</th>
+              <th>Glosa</th>
             </tr>
+          </thead>
+          
+          <tbody>
+            <!-- Filas para Plan Anual -->
+            <ng-container *ngIf="tipoGrid === 'plan-anual'">
+              <tr *ngFor="let row of paginatedData; let i = index" class="fade-in">
+                <td class="row-number">{{ (currentPage - 1) * pageSize + i + 1 }}</td>
+                <td>{{ row.pais }}</td>
+                <td>{{ row.razonSocial }}</td>
+                <td>{{ row.ceco }}</td>
+                <td>{{ row.cuenta }}</td>
+                <td>{{ row.areaPlanifica }}</td>
+                <td>{{ row.recurso }}</td>
+                <td>{{ row.localidadFisica }}</td>
+                <td class="amount">{{ formatAmount(row.tarifa) }}</td>
+                <td>{{ row.moneda }}</td>
+                <td class="amount">{{ formatAmount(row.planEnero) }}</td>
+                <td class="amount">{{ formatAmount(row.planFebrero) }}</td>
+                <td class="amount">{{ formatAmount(row.planMarzo) }}</td>
+                <td class="amount">{{ formatAmount(row.planAbril) }}</td>
+                <td class="amount">{{ formatAmount(row.planMayo) }}</td>
+                <td class="amount">{{ formatAmount(row.planJunio) }}</td>
+                <td class="amount">{{ formatAmount(row.planJulio) }}</td>
+                <td class="amount">{{ formatAmount(row.planAgosto) }}</td>
+                <td class="amount">{{ formatAmount(row.planSeptiembre) }}</td>
+                <td class="amount">{{ formatAmount(row.planOctubre) }}</td>
+                <td class="amount">{{ formatAmount(row.planNoviembre) }}</td>
+                <td class="amount">{{ formatAmount(row.planDiciembre) }}</td>
+              </tr>
+            </ng-container>
+            
+            <!-- Filas para Gasto Real -->
+            <ng-container *ngIf="tipoGrid === 'gasto-real'">
+              <tr *ngFor="let row of paginatedData; let i = index" class="fade-in">
+                <td class="row-number">{{ (currentPage - 1) * pageSize + i + 1 }}</td>
+                <td>{{ row.pais }}</td>
+                <td>{{ row.razonSocial }}</td>
+                <td>{{ row.ceco }}</td>
+                <td>{{ row.cuenta }}</td>
+                <td>{{ row.moneda }}</td>
+                <td class="amount">{{ formatAmount(getTotalPlan(row)) }}</td>
+                <td>{{ getGlosaFromRow(row) || '-' }}</td>
+              </tr>
+            </ng-container>
           </tbody>
         </table>
       </div>
@@ -238,6 +271,7 @@ import { ExcelRow } from '../../models/excel-data.model';
 })
 export class DataGridComponent {
   @Input() data: ExcelRow[] = [];
+  @Input() tipoGrid: 'plan-anual' | 'gasto-real' | 'otro' = 'plan-anual';
   
   currentPage = 1;
   pageSize = 50;
@@ -269,5 +303,28 @@ export class DataGridComponent {
       minimumFractionDigits: 0,
       maximumFractionDigits: 0
     }).format(amount);
+  }
+
+  getTituloGrid(): string {
+    switch (this.tipoGrid) {
+      case 'plan-anual':
+        return 'Vista previa Plan Anual';
+      case 'gasto-real':
+        return 'Vista previa Gastos Reales';
+      default:
+        return 'Vista previa de datos';
+    }
+  }
+
+  getTotalPlan(row: ExcelRow): number {
+    return row.planEnero + row.planFebrero + row.planMarzo + row.planAbril +
+           row.planMayo + row.planJunio + row.planJulio + row.planAgosto +
+           row.planSeptiembre + row.planOctubre + row.planNoviembre + row.planDiciembre;
+  }
+
+  getGlosaFromRow(row: ExcelRow): string {
+    // Para gastos reales, podrías usar algún campo como descripción
+    // Por ahora retornamos un placeholder
+    return 'Detalle de gasto';
   }
 }

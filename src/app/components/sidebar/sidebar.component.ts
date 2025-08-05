@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router'; // Corrige: Importa Router en vez de Routes
+import { Router, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-sidebar',
@@ -163,12 +164,42 @@ import { Router } from '@angular/router'; // Corrige: Importa Router en vez de R
     }
   `]
 })
-export class SidebarComponent {
+export class SidebarComponent implements OnInit {
   selected = 'portal';
-  constructor(private router: Router) {
-    // Navega automáticamente a /portal si no está en esa ruta al iniciar
+  
+  constructor(private router: Router) {}
+
+  ngOnInit() {
+    // Establecer el valor inicial basado en la URL actual
+    this.updateSelectedFromUrl();
+    
+    // Suscribirse a cambios de ruta para mantener sincronizado el estado
+    this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe((event: NavigationEnd) => {
+        this.updateSelectedFromUrl();
+      });
+    
+    // Si estamos en la ruta raíz, redirigir a portal
     if (this.router.url === '/' || this.router.url === '') {
       this.router.navigate(['portal']);
+    }
+  }
+
+  private updateSelectedFromUrl() {
+    const currentUrl = this.router.url;
+    if (currentUrl.includes('/portal')) {
+      this.selected = 'portal';
+    } else if (currentUrl.includes('/plan-anual')) {
+      this.selected = 'plan-anual';
+    } else if (currentUrl.includes('/gasto-real')) {
+      this.selected = 'gasto-real';
+    } else if (currentUrl.includes('/confidencial')) {
+      this.selected = 'confidencial';
+    } else if (currentUrl.includes('/ajustes')) {
+      this.selected = 'ajustes';
+    } else {
+      this.selected = 'portal'; // Por defecto
     }
   }
 

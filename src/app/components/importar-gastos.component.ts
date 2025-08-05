@@ -26,24 +26,53 @@ import { DataGridComponent } from './data-grid/data-grid.component';
           <li *ngFor="let punto of bulletPoints">{{ punto }}</li>
         </ul>
       </div>
-      <div class="mb-8">
+      
+      <!-- Selector de Tasas de Conversión (condicional) -->
+      <div class="mb-8" *ngIf="mostrarTasasConversion">
         <select id="month" [(ngModel)]="selectedMonth" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-sky-200 text-base sm:text-lg">
           <option value="01">Tasas de Conversión de Referencia para el año 2025 </option>
         </select>
       </div>
-      <label for="month" class="block font-semibold text-gray-700 mb-2">Año para el plan: </label>
-      <div class="mb-8">
+      
+      <!-- Selector de Año (condicional) -->
+      <div *ngIf="mostrarSelectorAno">
+        <label for="year" class="block font-semibold text-gray-700 mb-2">Año para el plan: </label>
+        <div class="mb-8">
+          <select
+            id="year"
+            [(ngModel)]="selectedMonth"
+            class="w-full px-4 py-3 bg-gray-100 text-gray-800 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-sky-200 text-base sm:text-lg"
+          >
+            <option *ngFor="let opcion of opcionesAno" [value]="opcion.value">{{ opcion.label }}</option>
+          </select>
+        </div>
+      </div>
+      
+      <!-- Selector de Mes (condicional) -->
+      <div class="mb-8" *ngIf="mostrarSelectorMes && tipoArchivo === 'gasto-real'">
+        <label for="mes" class="block font-semibold text-gray-700 mb-2">Mes de los gastos reales:</label>
         <select
-          id="month"
+          id="mes"
           [(ngModel)]="selectedMonth"
           class="w-full px-4 py-3 bg-gray-100 text-gray-800 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-sky-200 text-base sm:text-lg"
         >
-          <option value="01"> 2025 </option>
-          <option value="02"> 2024 </option>
+          <option value="01">Enero</option>
+          <option value="02">Febrero</option>
+          <option value="03">Marzo</option>
+          <option value="04">Abril</option>
+          <option value="05">Mayo</option>
+          <option value="06">Junio</option>
+          <option value="07">Julio</option>
+          <option value="08">Agosto</option>
+          <option value="09">Septiembre</option>
+          <option value="10">Octubre</option>
+          <option value="11">Noviembre</option>
+          <option value="12">Diciembre</option>
         </select>
       </div>
+      
       <div class="mb-8">
-        <h3 class="font-semibold text-gray-800 mb-2">Cargar Excel de Gastos Reales</h3>
+        <h3 class="font-semibold text-gray-800 mb-2">{{ labelCargaArchivo }}</h3>
         <app-file-upload (fileSelected)="fileSelected.emit($event)" [isLoading]="isLoading"></app-file-upload>
       </div>
       <div *ngIf="uploadMessage" class="mb-4">
@@ -59,7 +88,7 @@ import { DataGridComponent } from './data-grid/data-grid.component';
           </ul>
         </div>
       </div>
-      <app-data-grid [data]="excelData"></app-data-grid>
+      <app-data-grid [data]="excelData" [tipoGrid]="tipoArchivo"></app-data-grid>
     </div>
   `
 })
@@ -77,6 +106,17 @@ export class ImportarGastosComponent {
   @Input() uploadSuccess: boolean = false;
   @Input() validationErrors: string[] = [];
   @Input() excelData: any[] = [];
+  
+  // Nuevos inputs para mayor configurabilidad
+  @Input() mostrarSelectorMes: boolean = true;
+  @Input() mostrarSelectorAno: boolean = true;
+  @Input() mostrarTasasConversion: boolean = true;
+  @Input() labelCargaArchivo: string = 'Cargar Excel de Gastos Reales';
+  @Input() tipoArchivo: 'plan-anual' | 'gasto-real' | 'otro' = 'plan-anual';
+  @Input() opcionesAno: Array<{value: string, label: string}> = [
+    { value: '01', label: '2025' },
+    { value: '02', label: '2024' }
+  ];
 
   @Output() downloadTemplate = new EventEmitter<void>();
   @Output() fileSelected = new EventEmitter<File>();
