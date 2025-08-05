@@ -1,11 +1,12 @@
-import { Component, Input } from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { SidebarComponent } from './sidebar/sidebar.component';
+import { RouterOutlet } from '@angular/router';
+import { SidebarComponent } from './sidebar/sidebar.component'; // Importa el SidebarComponent
 
 @Component({
   selector: 'app-main-layout',
   standalone: true,
-  imports: [CommonModule, SidebarComponent],
+  imports: [CommonModule, RouterOutlet, SidebarComponent], // Agrega SidebarComponent aquí
   template: `
     <div class="flex min-h-screen bg-gray-100">
       <app-sidebar></app-sidebar>
@@ -26,10 +27,10 @@ import { SidebarComponent } from './sidebar/sidebar.component';
           </div>
         </header>
         <main class="flex-1 p-8 max-w-6xl w-full mx-auto">
-          <ng-content></ng-content>
+          <router-outlet></router-outlet>
         </main>
       </div>
     </div>
   `
 })
-export class MainLayoutComponent {} 
+export class MainLayoutComponent {}
