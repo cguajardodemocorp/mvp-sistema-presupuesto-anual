@@ -4,6 +4,7 @@ import { ExcelService } from '../services/excel.service';
 import { ExcelRow } from '../models/excel-data.model';
 import { Subject, takeUntil } from 'rxjs';
 import { CommonModule } from '@angular/common';
+import * as XLSX from 'xlsx';
 
 @Component({
   selector: 'app-plan-anual-page',
@@ -11,19 +12,26 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule, ImportarGastosComponent],
   template: `
     <app-importar-gastos
+      [titulo]="'Importar Plan Anual - Año 2025'"
+      [instrucciones]="'EL plan se importará para el año 2025. Descarga la plantilla oficial para este año.'"
+      [textoBoton]="'Descargar plantilla de Plan Anual'"
+      [bulletPoints]="[
+        'El archivo debe contener las columnas obligatorias',
+        'Solo se permiten valores válidos para el plan anual'
+      ]"
       [selectedMonth]="selectedMonth"
       [isLoading]="isLoading"
       [uploadMessage]="uploadMessage"
       [uploadSuccess]="uploadSuccess"
       [validationErrors]="validationErrors"
       [excelData]="excelData"
-      (downloadTemplate)="downloadTemplate()"
+      [onDownloadTemplate]="downloadPlanAnualTemplate"
       (fileSelected)="onFileSelected($event)"
     ></app-importar-gastos>
   `
 })
-export class PlanAnualPageComponent implements OnInit, OnDestroy{
-private destroy$ = new Subject<void>();
+export class PlanAnualPageComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
 
   excelData: ExcelRow[] = [];
   isLoading = false;
@@ -31,6 +39,18 @@ private destroy$ = new Subject<void>();
   uploadSuccess = false;
   validationErrors: string[] = [];
   selectedMonth = '01';
+
+  // Campos requeridos para el template de Plan Anual
+  requiredColumns = [
+    'Año',
+    'País',
+    'Razón Social',
+    'Cuenta',
+    'CeCo',
+    'Moneda',
+    'Monto Planificado',
+    'Glosa'
+  ];
 
   constructor(private excelService: ExcelService) {}
 
@@ -53,9 +73,38 @@ private destroy$ = new Subject<void>();
     this.destroy$.complete();
   }
 
-  downloadTemplate(): void {
-    this.excelService.downloadTemplate();
-  }
+  // Función personalizada para descargar la plantilla de plan anual
+  downloadPlanAnualTemplate = () => {
+    const templateData = [
+      {
+        'Año': '2025',
+        'País': 'Colombia',
+        'Razón Social': 'Empresa Ejemplo SAS',
+        'Cuenta': 'cLogística',
+        'CeCo': '696-654',
+        'Moneda': 'COP',
+        'Monto Planificado': 10000,
+        'Glosa': 'Detalle plan anual'
+      }
+    ];
+
+    const ws = XLSX.utils.json_to_sheet(templateData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Plan Anual');
+
+    ws['!cols'] = [
+      { wch: 6 },   // Año
+      { wch: 15 },  // País
+      { wch: 25 },  // Razón Social
+      { wch: 15 },  // Cuenta
+      { wch: 15 },  // CeCo
+      { wch: 10 },  // Moneda
+      { wch: 18 },  // Monto Planificado
+      { wch: 30 }   // Glosa
+    ];
+
+    XLSX.writeFile(wb, 'plantilla_plan_anual.xlsx');
+  };
 
   async onFileSelected(file: File): Promise<void> {
     this.uploadMessage = '';
@@ -71,25 +120,83 @@ private destroy$ = new Subject<void>();
     this.isLoading = true;
 
     try {
-      const result = await this.excelService.processExcelFile(file);
+      // Leer el archivo Excel y obtener los encabezados
+      const data = await file.arrayBuffer();
+      const workbook = XLSX.read(data, { type: 'array' });
+      const firstSheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[firstSheetName];
+      const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
 
-      if (result.errors.length > 0) {
-        this.validationErrors = result.errors;
+      const headers = jsonData[0] as string[];
+      const missingColumns = this.requiredColumns.filter(col => !headers.includes(col));
+      if (missingColumns.length > 0) {
+        this.uploadMessage = `Faltan las siguientes columnas requeridas: ${missingColumns.join(', ')}`;
+        this.uploadSuccess = false;
+        this.isLoading = false;
+        return;
       }
 
-      if (result.data.length === 0) {
+      // Procesar filas según el template de Plan Anual
+      const processedData: ExcelRow[] = [];
+      const errors: string[] = [];
+
+      for (let i = 1; i < jsonData.length; i++) {
+        const row = jsonData[i] as any[];
+        if (!row || row.every(cell => !cell || cell.toString().trim() === '')) continue;
+
+        try {
+          // Mapear los valores según el encabezado
+          const getValue = (col: string) => {
+            const idx = headers.indexOf(col);
+            return idx !== -1 ? row[idx] : '';
+          };
+
+          // Validar campos requeridos
+          for (const col of this.requiredColumns) {
+            if (!getValue(col) || getValue(col).toString().trim() === '') {
+              throw new Error(`El campo "${col}" es requerido`);
+            }
+          }
+
+          // Validar y procesar monto planificado
+          let montoPlanificado = getValue('Monto Planificado');
+          montoPlanificado = typeof montoPlanificado === 'number'
+            ? montoPlanificado
+            : parseFloat(montoPlanificado.toString().replace(/[^\d.-]/g, ''));
+          if (isNaN(montoPlanificado)) {
+            throw new Error('El campo "Monto Planificado" debe ser un número válido');
+          }
+
+          processedData.push({
+            pais: getValue('País').toString().trim(),
+            razonSocial: getValue('Razón Social').toString().trim(),
+            cuenta: getValue('Cuenta').toString().trim(),
+            ceco: getValue('CeCo').toString().trim(),
+            moneda: getValue('Moneda').toString().trim(),
+            monto: montoPlanificado,
+            glosa: getValue('Glosa').toString().trim()
+          });
+        } catch (error) {
+          errors.push(`Fila ${i + 1}: ${error}`);
+        }
+      }
+
+      this.excelData = processedData;
+      this.validationErrors = errors;
+
+      if (processedData.length === 0) {
         this.uploadMessage = 'No se encontraron datos válidos en el archivo';
         this.uploadSuccess = false;
         this.isLoading = false;
         return;
       }
 
-      this.excelService.uploadData(result.data)
+      this.excelService.uploadData(processedData)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: (response) => {
             if (response.success) {
-              this.uploadMessage = `${response.message}. Se importaron ${result.data.length} registros.`;
+              this.uploadMessage = `${response.message}. Se importaron ${processedData.length} registros.`;
               this.uploadSuccess = true;
             } else {
               this.uploadMessage = response.message || 'Error al importar los datos';

@@ -10,15 +10,22 @@ import { DataGridComponent } from './data-grid/data-grid.component';
   imports: [CommonModule, FormsModule, FileUploadComponent, DataGridComponent],
   template: `
     <div class="bg-white rounded-2xl shadow-lg p-10 w-full max-w-3xl mx-auto mt-8 border border-gray-100">
-      <h1 class="text-3xl font-extrabold text-gray-800 mb-2">Importar Plan Anual - Año 2025</h1>
+      <h1 class="text-3xl font-extrabold text-gray-800 mb-2">{{ titulo }}</h1>
       <p class="text-gray-600 mb-6">
-        <b>Instrucciones:</b> EL plan se importará para el año <b>2025</b>. Para Realizar la importación del plan anual de presupuesto, primero debes descargar la <b>plantilla oficial</b>, la cual contiene los valores predeterminados y el formato correcto. Solo se admiten archivos en format <b>.xlsx</b> o <b>.xls</b>.
-       
+        <b>Instrucciones:</b> {{ instrucciones }}
       </p>
-      <button class="w-full flex items-center justify-center gap-2 bg-sky-600 hover:bg-sky-700 text-white font-bold py-3 rounded-lg mb-8 text-base shadow transition" (click)="downloadTemplate.emit()">
+      <button
+        class="w-full flex items-center justify-center gap-2 bg-sky-600 hover:bg-sky-700 text-white font-bold py-3 rounded-lg mb-8 text-base shadow transition"
+        (click)="onDownloadTemplate()"
+      >
         <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        Descargar plantilla de importación
+        {{ textoBoton }}
       </button>
+      <div class="mb-4 text-gray-700 text-sm">
+        <ul class="list-disc ml-6 mt-2">
+          <li *ngFor="let punto of bulletPoints">{{ punto }}</li>
+        </ul>
+      </div>
       <div class="mb-8">
         <select id="month" [(ngModel)]="selectedMonth" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-sky-200 text-lg">
           <option value="01">Tasas de Conversión de Referencia para el año 2025 </option>
@@ -57,6 +64,13 @@ import { DataGridComponent } from './data-grid/data-grid.component';
   `
 })
 export class ImportarGastosComponent {
+  @Input() titulo: string = 'Importar Plan Anual - Año 2025';
+  @Input() instrucciones: string = 'EL plan se importará para el año 2025. Para realizar la importación del plan anual de presupuesto, primero debes descargar la plantilla oficial, la cual contiene los valores predeterminados y el formato correcto. Solo se admiten archivos en format .xlsx o .xls.';
+  @Input() textoBoton: string = 'Descargar plantilla de importación';
+  @Input() bulletPoints: string[] = [
+    'El archivo debe contener las columnas obligatorias',
+    'Solo se permiten valores válidos'
+  ];
   @Input() selectedMonth: string = '01';
   @Input() isLoading: boolean = false;
   @Input() uploadMessage: string = '';
@@ -66,4 +80,5 @@ export class ImportarGastosComponent {
 
   @Output() downloadTemplate = new EventEmitter<void>();
   @Output() fileSelected = new EventEmitter<File>();
+  @Input() onDownloadTemplate: () => void = () => {};
 }
