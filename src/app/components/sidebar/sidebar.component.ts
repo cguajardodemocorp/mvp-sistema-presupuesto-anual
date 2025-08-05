@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router'; // Corrige: Importa Router en vez de Routes
 
 @Component({
   selector: 'app-sidebar',
@@ -17,24 +18,34 @@ import { CommonModule } from '@angular/common';
           <p class="text-xs mb-4 opacity-80">Selecciona el Módulo</p>
           <form class="space-y-2">
             <label class="flex items-center gap-2 cursor-pointer">
-              <input type="radio" name="modulo" value="Portal" class="accent-sky-500" checked>
-              <span>Portal</span>
+              <input type="radio" name="modulo" value="Portal" class="accent-sky-500"
+                [checked]="selected === 'portal'"
+                (change)="navigate('portal')">
+              <span [ngClass]="{'font-bold': selected === 'portal'}">Portal</span>
             </label>
             <label class="flex items-center gap-2 cursor-pointer">
-              <input type="radio" name="modulo" value="Plan Anual" class="accent-sky-500">
-              <span>Plan Anual</span>
-            </label>
-            <label class="flex items-center gap-2 cursor-pointer font-bold">
-              <input type="radio" name="modulo" value="Gasto Real" class="accent-sky-500">
-              <span>Gasto Real</span>
+              <input type="radio" name="modulo" value="Plan Anual" class="accent-sky-500"
+                [checked]="selected === 'plan-anual'"
+                (change)="navigate('plan-anual')">
+              <span [ngClass]="{'font-bold': selected === 'plan-anual'}">Plan Anual</span>
             </label>
             <label class="flex items-center gap-2 cursor-pointer">
-              <input type="radio" name="modulo" value="Confidencial" class="accent-sky-500">
-              <span>Confidencial</span>
+              <input type="radio" name="modulo" value="Gasto Real" class="accent-sky-500"
+                [checked]="selected === 'gasto-real'"
+                (change)="navigate('gasto-real')">
+              <span [ngClass]="{'font-bold': selected === 'gasto-real'}">Gasto Real</span>
             </label>
             <label class="flex items-center gap-2 cursor-pointer">
-              <input type="radio" name="modulo" value="Ajustes" class="accent-sky-500">
-              <span>Ajustes</span>
+              <input type="radio" name="modulo" value="Confidencial" class="accent-sky-500"
+                [checked]="selected === 'confidencial'"
+                (change)="navigate('confidencial')">
+              <span [ngClass]="{'font-bold': selected === 'confidencial'}">Confidencial</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="radio" name="modulo" value="Ajustes" class="accent-sky-500"
+                [checked]="selected === 'ajustes'"
+                (change)="navigate('ajustes')">
+              <span [ngClass]="{'font-bold': selected === 'ajustes'}">Ajustes</span>
             </label>
           </form>
         </nav>
@@ -152,4 +163,21 @@ import { CommonModule } from '@angular/common';
     }
   `]
 })
-export class SidebarComponent {}
+export class SidebarComponent {
+  selected = 'portal';
+  constructor(private router: Router) {}
+
+  navigate(modulo: string) {
+    this.selected = modulo;
+    this.router.navigate([modulo]);
+  }
+}
+
+// Elimina las declaraciones de rutas y los imports innecesarios.
+// Los componentes de página deben estar en archivos separados.
+// Si necesitas el PortalPageComponent aquí, solo déjalo así:
+@Component({
+  selector: 'app-portal-page',
+  template: `<div class="p-8 text-3xl font-bold">Portal</div>`
+})
+export class PortalPageComponent {}
