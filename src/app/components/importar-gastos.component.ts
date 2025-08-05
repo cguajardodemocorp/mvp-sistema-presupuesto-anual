@@ -9,9 +9,9 @@ import { DataGridComponent } from './data-grid/data-grid.component';
   standalone: true,
   imports: [CommonModule, FormsModule, FileUploadComponent, DataGridComponent],
   template: `
-    <div class="bg-white rounded-2xl shadow-lg p-10 w-full max-w-3xl mx-auto mt-8 border border-gray-100">
-      <h1 class="text-3xl font-extrabold text-gray-800 mb-2">{{ titulo }}</h1>
-      <p class="text-gray-600 mb-6">
+    <div class="bg-white rounded-2xl shadow-lg p-4 sm:p-6 lg:p-10 w-full border border-gray-100">
+      <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-800 mb-2">{{ titulo }}</h1>
+      <p class="text-gray-600 mb-6 text-sm sm:text-base">
         <b>Instrucciones:</b> {{ instrucciones }}
       </p>
       <button
@@ -27,7 +27,7 @@ import { DataGridComponent } from './data-grid/data-grid.component';
         </ul>
       </div>
       <div class="mb-8">
-        <select id="month" [(ngModel)]="selectedMonth" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-sky-200 text-lg">
+        <select id="month" [(ngModel)]="selectedMonth" class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-sky-200 text-base sm:text-lg">
           <option value="01">Tasas de Conversión de Referencia para el año 2025 </option>
         </select>
       </div>
@@ -36,7 +36,7 @@ import { DataGridComponent } from './data-grid/data-grid.component';
         <select
           id="month"
           [(ngModel)]="selectedMonth"
-          class="w-full px-4 py-3 bg-gray-100 text-gray-800 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-sky-200 text-lg"
+          class="w-full px-4 py-3 bg-gray-100 text-gray-800 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-sky-200 text-base sm:text-lg"
         >
           <option value="01"> 2025 </option>
           <option value="02"> 2024 </option>

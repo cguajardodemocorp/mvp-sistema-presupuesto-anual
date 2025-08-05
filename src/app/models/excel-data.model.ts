@@ -1,11 +1,25 @@
 export interface ExcelRow {
   pais: string;
   razonSocial: string;
-  cuenta: string;
   ceco: string;
+  cuenta: string;
+  areaPlanifica: string;
+  recurso: string;
+  localidadFisica: string;
+  tarifa: number;
   moneda: string;
-  monto: number;
-  glosa: string;
+  planEnero: number;
+  planFebrero: number;
+  planMarzo: number;
+  planAbril: number;
+  planMayo: number;
+  planJunio: number;
+  planJulio: number;
+  planAgosto: number;
+  planSeptiembre: number;
+  planOctubre: number;
+  planNoviembre: number;
+  planDiciembre: number;
 }
 
 export interface UploadResponse {

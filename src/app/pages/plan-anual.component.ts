@@ -42,14 +42,27 @@ export class PlanAnualPageComponent implements OnInit, OnDestroy {
 
   // Campos requeridos para el template de Plan Anual
   requiredColumns = [
-    'Año',
     'País',
     'Razón Social',
-    'Cuenta',
     'CeCo',
+    'Cuenta',
+    'Área que planifica',
+    'Recurso',
+    'Localidad física',
+    'Tarifa',
     'Moneda',
-    'Monto Planificado',
-    'Glosa'
+    'Plan Enero',
+    'Plan Febrero',
+    'Plan Marzo',
+    'Plan Abril',
+    'Plan Mayo',
+    'Plan Junio',
+    'Plan Julio',
+    'Plan Agosto',
+    'Plan Septiembre',
+    'Plan Octubre',
+    'Plan Noviembre',
+    'Plan Diciembre'
   ];
 
   constructor(private excelService: ExcelService) {}
@@ -75,32 +88,58 @@ export class PlanAnualPageComponent implements OnInit, OnDestroy {
 
   // Función personalizada para descargar la plantilla de plan anual
   downloadPlanAnualTemplate = () => {
-    const templateData = [
-      {
-        'Año': '2025',
-        'País': 'Colombia',
-        'Razón Social': 'Empresa Ejemplo SAS',
-        'Cuenta': 'cLogística',
-        'CeCo': '696-654',
-        'Moneda': 'COP',
-        'Monto Planificado': 10000,
-        'Glosa': 'Detalle plan anual'
-      }
+    // Crear solo los encabezados sin datos de ejemplo
+    const headers = [
+      'País',
+      'Razón Social', 
+      'CeCo',
+      'Cuenta',
+      'Área que planifica',
+      'Recurso',
+      'Localidad física',
+      'Tarifa',
+      'Moneda',
+      'Plan Enero',
+      'Plan Febrero',
+      'Plan Marzo',
+      'Plan Abril',
+      'Plan Mayo',
+      'Plan Junio',
+      'Plan Julio',
+      'Plan Agosto',
+      'Plan Septiembre',
+      'Plan Octubre',
+      'Plan Noviembre',
+      'Plan Diciembre'
     ];
 
-    const ws = XLSX.utils.json_to_sheet(templateData);
+    // Crear una hoja con solo los encabezados
+    const ws = XLSX.utils.aoa_to_sheet([headers]);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Plan Anual');
 
     ws['!cols'] = [
-      { wch: 6 },   // Año
       { wch: 15 },  // País
       { wch: 25 },  // Razón Social
-      { wch: 15 },  // Cuenta
       { wch: 15 },  // CeCo
+      { wch: 15 },  // Cuenta
+      { wch: 20 },  // Area que planifica
+      { wch: 15 },  // Recurso
+      { wch: 20 },  // Localidad Física
+      { wch: 12 },  // Tarifa
       { wch: 10 },  // Moneda
-      { wch: 18 },  // Monto Planificado
-      { wch: 30 }   // Glosa
+      { wch: 15 },  // Plan Enero
+      { wch: 15 },  // Plan Febrero
+      { wch: 15 },  // Plan Marzo
+      { wch: 15 },  // Plan Abril
+      { wch: 15 },  // Plan Mayo
+      { wch: 15 },  // Plan Junio
+      { wch: 15 },  // Plan Julio
+      { wch: 15 },  // Plan Agosto
+      { wch: 15 },  // Plan Septiembre
+      { wch: 15 },  // Plan Octubre
+      { wch: 15 },  // Plan Noviembre
+      { wch: 15 }   // Plan Diciembre
     ];
 
     XLSX.writeFile(wb, 'plantilla_plan_anual.xlsx');
@@ -151,30 +190,85 @@ export class PlanAnualPageComponent implements OnInit, OnDestroy {
             return idx !== -1 ? row[idx] : '';
           };
 
-          // Validar campos requeridos
-          for (const col of this.requiredColumns) {
-            if (!getValue(col) || getValue(col).toString().trim() === '') {
+          // Validar campos requeridos de texto básicos
+          const basicTextFields = ['País', 'Razón Social', 'CeCo', 'Cuenta', 'Área que planifica', 'Recurso', 'Localidad física', 'Moneda'];
+          for (const col of basicTextFields) {
+            const value = getValue(col);
+            if (!value || value.toString().trim() === '') {
               throw new Error(`El campo "${col}" es requerido`);
             }
           }
 
-          // Validar y procesar monto planificado
-          let montoPlanificado = getValue('Monto Planificado');
-          montoPlanificado = typeof montoPlanificado === 'number'
-            ? montoPlanificado
-            : parseFloat(montoPlanificado.toString().replace(/[^\d.-]/g, ''));
-          if (isNaN(montoPlanificado)) {
-            throw new Error('El campo "Monto Planificado" debe ser un número válido');
+          // Validar y procesar tarifa (campo requerido numérico)
+          let tarifa = getValue('Tarifa');
+          if (!tarifa && tarifa !== 0) {
+            throw new Error('El campo "Tarifa" es requerido');
+          }
+          tarifa = typeof tarifa === 'number'
+            ? tarifa
+            : parseFloat(tarifa.toString().replace(/[^\d.-]/g, ''));
+          if (isNaN(tarifa)) {
+            throw new Error('El campo "Tarifa" debe ser un número válido');
+          }
+
+          // Validar y procesar los montos de plan mensual (opcionales)
+          const mesesPlan = [
+            'Plan Enero', 'Plan Febrero', 'Plan Marzo', 'Plan Abril',
+            'Plan Mayo', 'Plan Junio', 'Plan Julio', 'Plan Agosto',
+            'Plan Septiembre', 'Plan Octubre', 'Plan Noviembre', 'Plan Diciembre'
+          ];
+
+          const planesValidados: { [key: string]: number } = {};
+          let hayAlMenosUnPlan = false;
+          
+          for (const mes of mesesPlan) {
+            let monto = getValue(mes);
+            
+            // Si el campo está vacío, asignar 0
+            if (!monto && monto !== 0) {
+              monto = 0;
+            } else {
+              monto = typeof monto === 'number'
+                ? monto
+                : parseFloat(monto.toString().replace(/[^\d.-]/g, ''));
+              
+              if (isNaN(monto)) {
+                monto = 0;
+              } else if (monto > 0) {
+                hayAlMenosUnPlan = true;
+              }
+            }
+            
+            planesValidados[mes] = monto;
+          }
+
+          // Validar que al menos uno de los planes mensuales tenga un valor mayor a 0
+          if (!hayAlMenosUnPlan) {
+            throw new Error('Debe ingresar al menos un monto de plan mensual mayor a 0');
           }
 
           processedData.push({
             pais: getValue('País').toString().trim(),
             razonSocial: getValue('Razón Social').toString().trim(),
-            cuenta: getValue('Cuenta').toString().trim(),
             ceco: getValue('CeCo').toString().trim(),
+            cuenta: getValue('Cuenta').toString().trim(),
+            areaPlanifica: getValue('Área que planifica').toString().trim(),
+            recurso: getValue('Recurso').toString().trim(),
+            localidadFisica: getValue('Localidad física').toString().trim(),
+            tarifa: tarifa,
             moneda: getValue('Moneda').toString().trim(),
-            monto: montoPlanificado,
-            glosa: getValue('Glosa').toString().trim()
+            planEnero: planesValidados['Plan Enero'],
+            planFebrero: planesValidados['Plan Febrero'],
+            planMarzo: planesValidados['Plan Marzo'],
+            planAbril: planesValidados['Plan Abril'],
+            planMayo: planesValidados['Plan Mayo'],
+            planJunio: planesValidados['Plan Junio'],
+            planJulio: planesValidados['Plan Julio'],
+            planAgosto: planesValidados['Plan Agosto'],
+            planSeptiembre: planesValidados['Plan Septiembre'],
+            planOctubre: planesValidados['Plan Octubre'],
+            planNoviembre: planesValidados['Plan Noviembre'],
+            planDiciembre: planesValidados['Plan Diciembre']
           });
         } catch (error) {
           errors.push(`Fila ${i + 1}: ${error}`);

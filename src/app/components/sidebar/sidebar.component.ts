@@ -165,7 +165,12 @@ import { Router } from '@angular/router'; // Corrige: Importa Router en vez de R
 })
 export class SidebarComponent {
   selected = 'portal';
-  constructor(private router: Router) {}
+  constructor(private router: Router) {
+    // Navega automáticamente a /portal si no está en esa ruta al iniciar
+    if (this.router.url === '/' || this.router.url === '') {
+      this.router.navigate(['portal']);
+    }
+  }
 
   navigate(modulo: string) {
     this.selected = modulo;

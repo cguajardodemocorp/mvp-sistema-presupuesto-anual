@@ -9,7 +9,7 @@ import { ExcelRow } from '../../models/excel-data.model';
   template: `
     <div class="data-grid-container" *ngIf="data && data.length > 0">
       <div class="grid-header">
-        <h3>Vista previa Excel gastos reales</h3>
+        <h3>Vista previa Plan Anual</h3>
         <span class="record-count">{{ data.length }} registros</span>
       </div>
       
@@ -20,11 +20,14 @@ import { ExcelRow } from '../../models/excel-data.model';
               <th>#</th>
               <th>País</th>
               <th>Razón Social</th>
-              <th>Cuenta</th>
               <th>CeCo</th>
+              <th>Cuenta</th>
+              <th>Area</th>
+              <th>Recurso</th>
+              <th>Localidad</th>
+              <th>Tarifa</th>
               <th>Moneda</th>
-              <th>Monto</th>
-              <th>Glosa</th>
+              <th>Total Plan</th>
             </tr>
           </thead>
           <tbody>
@@ -32,11 +35,14 @@ import { ExcelRow } from '../../models/excel-data.model';
               <td class="row-number">{{ (currentPage - 1) * pageSize + i + 1 }}</td>
               <td>{{ row.pais }}</td>
               <td>{{ row.razonSocial }}</td>
-              <td>{{ row.cuenta }}</td>
               <td>{{ row.ceco }}</td>
+              <td>{{ row.cuenta }}</td>
+              <td>{{ row.areaPlanifica }}</td>
+              <td>{{ row.recurso }}</td>
+              <td>{{ row.localidadFisica }}</td>
+              <td class="amount">{{ formatAmount(row.tarifa) }}</td>
               <td>{{ row.moneda }}</td>
-              <td class="amount">{{ formatAmount(row.monto) }}</td>
-              <td>{{ row.glosa || '-' }}</td>
+              <td class="amount">{{ formatAmount(getTotalPlan(row)) }}</td>
             </tr>
           </tbody>
         </table>
@@ -235,5 +241,11 @@ export class DataGridComponent {
       minimumFractionDigits: 0,
       maximumFractionDigits: 0
     }).format(amount);
+  }
+
+  getTotalPlan(row: ExcelRow): number {
+    return row.planEnero + row.planFebrero + row.planMarzo + row.planAbril +
+           row.planMayo + row.planJunio + row.planJulio + row.planAgosto +
+           row.planSeptiembre + row.planOctubre + row.planNoviembre + row.planDiciembre;
   }
 }

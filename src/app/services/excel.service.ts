@@ -207,35 +207,59 @@ export class ExcelService {
       return row[index] || '';
     };
 
-    // Validar y procesar monto
-    const montoValue = getValue('monto');
-    let monto = 0;
+    // Este método mantiene compatibilidad con la estructura antigua por ahora
+    // pero debería ser actualizado para usar la nueva estructura según el contexto
     
-    if (montoValue !== undefined && montoValue !== null && montoValue !== '') {
-      monto = typeof montoValue === 'number' ? montoValue : parseFloat(montoValue.toString().replace(/[^\d.-]/g, ''));
-      if (isNaN(monto)) {
-        throw new Error('El monto debe ser un número válido');
+    // Para gastos reales (estructura antigua)
+    if ('monto' in headerMap) {
+      // Validar y procesar monto
+      const montoValue = getValue('monto');
+      let monto = 0;
+      
+      if (montoValue !== undefined && montoValue !== null && montoValue !== '') {
+        monto = typeof montoValue === 'number' ? montoValue : parseFloat(montoValue.toString().replace(/[^\d.-]/g, ''));
+        if (isNaN(monto)) {
+          throw new Error('El monto debe ser un número válido');
+        }
       }
+
+      // Validar campos requeridos
+      const requiredFields = ['pais', 'razonSocial', 'cuenta', 'ceco', 'moneda'];
+      for (const field of requiredFields) {
+        const value = getValue(field);
+        if (!value || value.toString().trim() === '') {
+          throw new Error(`El campo ${field} es requerido`);
+        }
+      }
+
+      return {
+        pais: getValue('pais').toString().trim(),
+        razonSocial: getValue('razonSocial').toString().trim(),
+        ceco: getValue('ceco').toString().trim(),
+        cuenta: getValue('cuenta').toString().trim(),
+        areaPlanifica: '',
+        recurso: '',
+        localidadFisica: '',
+        tarifa: 0,
+        moneda: getValue('moneda').toString().trim(),
+        planEnero: 0,
+        planFebrero: 0,
+        planMarzo: 0,
+        planAbril: 0,
+        planMayo: 0,
+        planJunio: 0,
+        planJulio: 0,
+        planAgosto: 0,
+        planSeptiembre: 0,
+        planOctubre: 0,
+        planNoviembre: 0,
+        planDiciembre: monto // Poner el monto en diciembre por compatibilidad
+      } as ExcelRow;
     }
 
-    // Validar campos requeridos
-    const requiredFields = ['pais', 'razonSocial', 'cuenta', 'ceco', 'moneda'];
-    for (const field of requiredFields) {
-      const value = getValue(field);
-      if (!value || value.toString().trim() === '') {
-        throw new Error(`El campo ${field} es requerido`);
-      }
-    }
-
-    return {
-      pais: getValue('pais').toString().trim(),
-      razonSocial: getValue('razonSocial').toString().trim(),
-      cuenta: getValue('cuenta').toString().trim(),
-      ceco: getValue('ceco').toString().trim(),
-      moneda: getValue('moneda').toString().trim(),
-      monto: monto,
-      glosa: getValue('glosa').toString().trim()
-    };
+    // Para plan anual (nueva estructura) - este caso no debería llegar aquí
+    // ya que plan-anual.component.ts maneja su propio procesamiento
+    throw new Error('Estructura de datos no reconocida');
   }
 
   uploadData(data: ExcelRow[]): Observable<UploadResponse> {
