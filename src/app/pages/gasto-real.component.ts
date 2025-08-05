@@ -64,8 +64,7 @@ export class GastoRealPageComponent implements OnInit, OnDestroy {
     'Cuenta',
     'Monto',
     'Moneda',
-    'Departamento',
-    'Glosa'
+    'Glosa',
   ];
 
   constructor(private excelService: ExcelService) {}
@@ -112,13 +111,13 @@ export class GastoRealPageComponent implements OnInit, OnDestroy {
   downloadGastoRealTemplate = () => {
     // Crear solo los encabezados sin datos de ejemplo
     const headers = [
-      'País',
-      'Razón Social',
-      'Cuenta', 
-      'CeCo',
-      'Moneda',
-      'Monto',
-      'Glosa'
+    'País',
+    'Razón Social',
+    'CeCo',
+    'Cuenta',
+    'Monto',
+    'Moneda',
+    'Glosa',
     ];
 
     // Crear una hoja con solo los encabezados
@@ -129,10 +128,10 @@ export class GastoRealPageComponent implements OnInit, OnDestroy {
     ws['!cols'] = [
       { wch: 15 },  // País
       { wch: 25 },  // Razón Social
-      { wch: 15 },  // Cuenta
       { wch: 15 },  // CeCo
-      { wch: 10 },  // Moneda
+      { wch: 15 },  // Cuenta
       { wch: 15 },  // Monto
+      { wch: 10 },  // Moneda
       { wch: 30 }   // Glosa
     ];
 
@@ -185,7 +184,7 @@ export class GastoRealPageComponent implements OnInit, OnDestroy {
           };
 
           // Validar campos requeridos de texto
-          const basicTextFields = ['País', 'Razón Social', 'Cuenta', 'CeCo', 'Moneda'];
+          const basicTextFields = ['País', 'Razón Social', 'CeCo', 'Cuenta', 'Moneda', 'Glosa'];
           for (const col of basicTextFields) {
             const value = getValue(col);
             if (!value || value.toString().trim() === '') {
@@ -217,7 +216,7 @@ export class GastoRealPageComponent implements OnInit, OnDestroy {
             cuenta: getValue('Cuenta').toString().trim(),
             areaPlanifica: '',
             recurso: '',
-            localidadFisica: '',
+            localidadFisica: getValue('Glosa').toString().trim(), // Usar Glosa como localidad física
             tarifa: 0,
             moneda: getValue('Moneda').toString().trim(),
             planEnero: 0,
