@@ -22,12 +22,23 @@ import { ExcelRow } from '../../models/excel-data.model';
               <th>Razón Social</th>
               <th>CeCo</th>
               <th>Cuenta</th>
-              <th>Area</th>
+              <th>Área</th>
               <th>Recurso</th>
               <th>Localidad</th>
               <th>Tarifa</th>
               <th>Moneda</th>
-              <th>Total Plan</th>
+              <th>Ene</th>
+              <th>Feb</th>
+              <th>Mar</th>
+              <th>Abr</th>
+              <th>May</th>
+              <th>Jun</th>
+              <th>Jul</th>
+              <th>Ago</th>
+              <th>Sep</th>
+              <th>Oct</th>
+              <th>Nov</th>
+              <th>Dic</th>
             </tr>
           </thead>
           <tbody>
@@ -42,7 +53,18 @@ import { ExcelRow } from '../../models/excel-data.model';
               <td>{{ row.localidadFisica }}</td>
               <td class="amount">{{ formatAmount(row.tarifa) }}</td>
               <td>{{ row.moneda }}</td>
-              <td class="amount">{{ formatAmount(getTotalPlan(row)) }}</td>
+              <td class="amount">{{ formatAmount(row.planEnero) }}</td>
+              <td class="amount">{{ formatAmount(row.planFebrero) }}</td>
+              <td class="amount">{{ formatAmount(row.planMarzo) }}</td>
+              <td class="amount">{{ formatAmount(row.planAbril) }}</td>
+              <td class="amount">{{ formatAmount(row.planMayo) }}</td>
+              <td class="amount">{{ formatAmount(row.planJunio) }}</td>
+              <td class="amount">{{ formatAmount(row.planJulio) }}</td>
+              <td class="amount">{{ formatAmount(row.planAgosto) }}</td>
+              <td class="amount">{{ formatAmount(row.planSeptiembre) }}</td>
+              <td class="amount">{{ formatAmount(row.planOctubre) }}</td>
+              <td class="amount">{{ formatAmount(row.planNoviembre) }}</td>
+              <td class="amount">{{ formatAmount(row.planDiciembre) }}</td>
             </tr>
           </tbody>
         </table>
@@ -117,21 +139,23 @@ import { ExcelRow } from '../../models/excel-data.model';
       background: var(--gray-100);
       color: var(--gray-700);
       font-weight: 600;
-      padding: 12px 16px;
+      padding: 12px 8px;
       text-align: left;
-      font-size: 13px;
+      font-size: 12px;
       text-transform: uppercase;
       letter-spacing: 0.5px;
       border-bottom: 2px solid var(--gray-200);
       position: sticky;
       top: 0;
       z-index: 10;
+      white-space: nowrap;
     }
 
     .table td {
-      padding: 12px 16px;
+      padding: 12px 8px;
       border-bottom: 1px solid var(--gray-200);
-      font-size: 14px;
+      font-size: 13px;
+      white-space: nowrap;
     }
 
     .table tr:nth-child(even) {
@@ -195,8 +219,8 @@ import { ExcelRow } from '../../models/excel-data.model';
       
       .table th,
       .table td {
-        padding: 8px 12px;
-        font-size: 13px;
+        padding: 6px 4px;
+        font-size: 11px;
       }
       
       .grid-header {
@@ -204,6 +228,10 @@ import { ExcelRow } from '../../models/excel-data.model';
         flex-direction: column;
         gap: 8px;
         align-items: stretch;
+      }
+
+      .amount {
+        font-size: 10px;
       }
     }
   `]
@@ -241,11 +269,5 @@ export class DataGridComponent {
       minimumFractionDigits: 0,
       maximumFractionDigits: 0
     }).format(amount);
-  }
-
-  getTotalPlan(row: ExcelRow): number {
-    return row.planEnero + row.planFebrero + row.planMarzo + row.planAbril +
-           row.planMayo + row.planJunio + row.planJulio + row.planAgosto +
-           row.planSeptiembre + row.planOctubre + row.planNoviembre + row.planDiciembre;
   }
 }
