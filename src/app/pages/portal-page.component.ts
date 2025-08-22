@@ -7,8 +7,8 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule],
   template: `
     <div class="p-8">
-      <h1 class="text-3xl font-bold mb-4">Portal</h1>
-      <p>Bienvenido al portal principal.</p>
+      <h1 class="text-3xl font-bold mb-4">Portal PAP 22-08</h1>
+      <p>Bienvenido al portal principal. Con cambios actualizados</p>
     </div>
   `
 })
