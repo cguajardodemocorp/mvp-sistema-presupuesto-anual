@@ -16,7 +16,7 @@ RUN rm -rf /usr/share/nginx/html/*
 COPY --from=build /app/dist/demo/browser/ /usr/share/nginx/html/
 
 # SPA fallback + (opcional) header de versión
-ARG APP_VERSION=v0.1.2
+ARG APP_VERSION=v0.1.5
 RUN printf "server {\n\
   listen 80;\n\
   root /usr/share/nginx/html;\n\
