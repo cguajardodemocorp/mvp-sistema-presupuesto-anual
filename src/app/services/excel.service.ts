@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject } from 'rxjs';
+import { Observable, forkJoin } from 'rxjs';
 import * as XLSX from 'xlsx';
 import { ExcelRow, UploadResponse, FileValidation } from '../models/excel-data.model';
 
@@ -9,11 +9,6 @@ import { ExcelRow, UploadResponse, FileValidation } from '../models/excel-data.m
 })
 export class ExcelService {
   private apiUrl = 'http://localhost:3000/api'; // URL del backend NestJS
-  private dataSubject = new BehaviorSubject<ExcelRow[]>([]);
-  public data$ = this.dataSubject.asObservable();
-
-  private loadingSubject = new BehaviorSubject<boolean>(false);
-  public loading$ = this.loadingSubject.asObservable();
 
   private requiredColumns = ['pais', 'razonSocial', 'cuenta', 'ceco', 'moneda', 'monto', 'glosa'];
 
@@ -262,29 +257,39 @@ export class ExcelService {
     throw new Error('Estructura de datos no reconocida');
   }
 
-  uploadData(data: ExcelRow[]): Observable<UploadResponse> {
-    this.loadingSubject.next(true);
-    
-    // Simular llamada al backend
-    return new Observable<UploadResponse>(observer => {
-      setTimeout(() => {
-        // Aquí iría la llamada real al backend
-        // return this.http.post<UploadResponse>(`${this.apiUrl}/gastos/import`, data);
-        
-        this.dataSubject.next(data);
-        this.loadingSubject.next(false);
-        
-        observer.next({
-          success: true,
-          message: 'Datos importados exitosamente',
-          data: data
-        });
-        observer.complete();
-      }, 2000);
-    });
+  // Envía cada registro a la API real usando POST
+  // Mapea ExcelRow al formato del backend usando valores por defecto
+  private mapExcelRowToBackend(row: ExcelRow): any {
+    return {
+      pais_id: 1, // Valor por defecto, reemplazar por lógica real si es necesario
+      razon_social_id: 1, // Valor por defecto
+      ceco_id: 1, // Valor por defecto
+      cuenta_id: 1, // Valor por defecto
+      area_id: 1, // Valor por defecto
+      recurso_id: 1, // Valor por defecto
+      local_id: 1, // Valor por defecto
+      tarifa: row.tarifa || 0,
+      moneda_id: 1, // Valor por defecto
+      anio: new Date().getFullYear(), // Año actual
+      usuario_id: 1, // Valor por defecto
+      fecha_carga: new Date().toISOString().slice(0, 19).replace('T', ' '), // Fecha actual en formato backend
+      tipo_carga: 'NORMAL', // Valor por defecto
+      mes: new Date().getMonth() + 1, // Mes actual
+      cantidad: row.planDiciembre || 0 // Ejemplo: usar planDiciembre como cantidad
+    };
   }
 
-  clearData(): void {
-    this.dataSubject.next([]);
+  uploadData(data: ExcelRow[]): Observable<any[]> {
+    const requests = data.map(row => {
+      const body = this.mapExcelRowToBackend(row);
+      return this.http.post<any>('http://localhost:3000/budgeSystem/v1/annual-plans', body);
+    });
+    return forkJoin(requests);
+  }
+
+
+  // Método para listar todos los planes anuales
+  getAnnualPlans(): Observable<any[]> {
+    return this.http.get<any[]>('http://localhost:3000/budgeSystem/v1/annual-plans');
   }
 }

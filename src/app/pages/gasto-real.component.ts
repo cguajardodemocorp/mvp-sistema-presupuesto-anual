@@ -70,16 +70,17 @@ export class GastoRealPageComponent implements OnInit, OnDestroy {
   constructor(private excelService: ExcelService) {}
 
   ngOnInit(): void {
-    this.excelService.data$
+    this.isLoading = true;
+    this.excelService.getAnnualPlans()
       .pipe(takeUntil(this.destroy$))
-      .subscribe(data => {
-        this.excelData = data;
-      });
-
-    this.excelService.loading$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(loading => {
-        this.isLoading = loading;
+      .subscribe({
+        next: (data) => {
+          this.excelData = data;
+          this.isLoading = false;
+        },
+        error: () => {
+          this.isLoading = false;
+        }
       });
   }
 
@@ -249,22 +250,18 @@ export class GastoRealPageComponent implements OnInit, OnDestroy {
 
       this.excelService.uploadData(processedData)
         .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: (response) => {
-            if (response.success) {
-              this.uploadMessage = `${response.message}. Se importaron ${processedData.length} registros.`;
-              this.uploadSuccess = true;
-            } else {
-              this.uploadMessage = response.message || 'Error al importar los datos';
-              this.uploadSuccess = false;
-            }
+        .subscribe(
+          (responses) => {
+            this.uploadMessage = `Se importaron ${responses.length} registros.`;
+            this.uploadSuccess = true;
+            this.isLoading = false;
           },
-          error: () => {
-            this.uploadMessage = 'Error al conectar con el servidor';
+          () => {
+            this.uploadMessage = 'Error al importar los datos';
             this.uploadSuccess = false;
             this.isLoading = false;
           }
-        });
+        );
 
     } catch (error) {
       this.uploadMessage = error instanceof Error ? error.message : 'Error al procesar el archivo';
