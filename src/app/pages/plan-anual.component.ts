@@ -68,18 +68,7 @@ export class PlanAnualPageComponent implements OnInit, OnDestroy {
   constructor(private excelService: ExcelService) {}
 
   ngOnInit(): void {
-    this.isLoading = true;
-    this.excelService.getAnnualPlans()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (data) => {
-          this.excelData = data;
-          this.isLoading = false;
-        },
-        error: () => {
-          this.isLoading = false;
-        }
-      });
+  // Ya no se llama GET al iniciar. Solo se muestra la grilla tras el POST.
   }
 
   ngOnDestroy(): void {
@@ -289,9 +278,20 @@ export class PlanAnualPageComponent implements OnInit, OnDestroy {
       this.excelService.uploadData(processedData)
         .pipe(takeUntil(this.destroy$))
         .subscribe(
-          (responses) => {
+          async (responses) => {
             this.uploadMessage = `Se importaron ${responses.length} registros.`;
             this.uploadSuccess = true;
+            // Obtener los IDs de los registros creados
+            const ids = responses.map(r => r.id).filter(id => !!id);
+            // Llamar GET por cada id y mostrar solo esos registros en la grilla
+            const registros: any[] = [];
+            for (const id of ids) {
+              try {
+                const registro = await this.excelService.getAnnualPlanById(id).toPromise();
+                registros.push(registro);
+              } catch {}
+            }
+            this.excelData = registros;
             this.isLoading = false;
           },
           () => {
@@ -300,6 +300,8 @@ export class PlanAnualPageComponent implements OnInit, OnDestroy {
             this.isLoading = false;
           }
         );
+// ...existing code...
+// Agregar método en el servicio para obtener un registro por id
 
     } catch (error: unknown) {
       this.uploadMessage = error instanceof Error ? error.message : 'Error al procesar el archivo';

@@ -14,6 +14,11 @@ export class ExcelService {
 
   constructor(private http: HttpClient) {}
 
+  // Obtener un registro de plan anual por id
+  getAnnualPlanById(id: number): Observable<any> {
+    return this.http.get<any>(`http://localhost:3000/budgeSystem/v1/annual-plans/${id}`);
+  }
+
   downloadTemplate(): void {
     // Crear datos de ejemplo para la plantilla
     const templateData = [
