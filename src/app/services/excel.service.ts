@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, forkJoin } from 'rxjs';
 import * as XLSX from 'xlsx';
 import { ExcelRow, UploadResponse, FileValidation } from '../models/excel-data.model';
@@ -15,9 +15,28 @@ export class ExcelService {
 
   constructor(private http: HttpClient) {}
 
+  // Helper para obtener los headers desde las cookies
+  private getApiHeaders(): HttpHeaders {
+    const getCookie = (name: string): string => {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop()!.split(';').shift()!;
+      return '';
+    };
+    const appSession = getCookie('CF_AppSession');
+    const authorization = getCookie('CF_Authorization');
+    return new HttpHeaders({
+      'CF_AppSession': appSession,
+      'CF_Authorization': authorization
+    });
+  }
+
   // Obtener un registro de plan anual por id
   getAnnualPlanById(id: number): Observable<any> {
-    return this.http.get<any>(`${environment.apiBaseUrl}/budgeSystem/v1/annual-plans/${id}`);
+    return this.http.get<any>(
+      `${environment.apiBaseUrl}/budgeSystem/v1/annual-plans/${id}`,
+      { headers: this.getApiHeaders() }
+    );
   }
 
   downloadTemplate(): void {
@@ -286,9 +305,14 @@ export class ExcelService {
   }
 
   uploadData(data: ExcelRow[]): Observable<any[]> {
+    const headers = this.getApiHeaders();
     const requests = data.map(row => {
       const body = this.mapExcelRowToBackend(row);
-      return this.http.post<any>(`${environment.apiBaseUrl}/budgeSystem/v1/annual-plans`, body);
+      return this.http.post<any>(
+        `${environment.apiBaseUrl}/budgeSystem/v1/annual-plans`,
+        body,
+        { headers }
+      );
     });
     return forkJoin(requests);
   }
@@ -296,6 +320,9 @@ export class ExcelService {
 
   // Método para listar todos los planes anuales
   getAnnualPlans(): Observable<any[]> {
-    return this.http.get<any[]>(`${environment.apiBaseUrl}/budgeSystem/v1/annual-plans`);
+    return this.http.get<any[]>(
+      `${environment.apiBaseUrl}/budgeSystem/v1/annual-plans`,
+      { headers: this.getApiHeaders() }
+    );
   }
 }
