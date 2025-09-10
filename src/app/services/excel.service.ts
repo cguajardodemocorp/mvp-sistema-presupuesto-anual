@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { environment } from '../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Observable, forkJoin } from 'rxjs';
 import * as XLSX from 'xlsx';
@@ -8,7 +9,7 @@ import { ExcelRow, UploadResponse, FileValidation } from '../models/excel-data.m
   providedIn: 'root'
 })
 export class ExcelService {
-  private apiUrl = 'http://localhost:3000/api'; // URL del backend NestJS
+  private apiUrl = `${environment.apiBaseUrl}/api`; // URL del backend NestJS
 
   private requiredColumns = ['pais', 'razonSocial', 'cuenta', 'ceco', 'moneda', 'monto', 'glosa'];
 
@@ -16,7 +17,7 @@ export class ExcelService {
 
   // Obtener un registro de plan anual por id
   getAnnualPlanById(id: number): Observable<any> {
-    return this.http.get<any>(`http://localhost:3000/budgeSystem/v1/annual-plans/${id}`);
+    return this.http.get<any>(`${environment.apiBaseUrl}/budgeSystem/v1/annual-plans/${id}`);
   }
 
   downloadTemplate(): void {
@@ -287,7 +288,7 @@ export class ExcelService {
   uploadData(data: ExcelRow[]): Observable<any[]> {
     const requests = data.map(row => {
       const body = this.mapExcelRowToBackend(row);
-      return this.http.post<any>('http://localhost:3000/budgeSystem/v1/annual-plans', body);
+      return this.http.post<any>(`${environment.apiBaseUrl}/budgeSystem/v1/annual-plans`, body);
     });
     return forkJoin(requests);
   }
@@ -295,6 +296,6 @@ export class ExcelService {
 
   // Método para listar todos los planes anuales
   getAnnualPlans(): Observable<any[]> {
-    return this.http.get<any[]>('http://localhost:3000/budgeSystem/v1/annual-plans');
+    return this.http.get<any[]>(`${environment.apiBaseUrl}/budgeSystem/v1/annual-plans`);
   }
 }
