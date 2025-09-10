@@ -288,7 +288,30 @@ export class PlanAnualPageComponent implements OnInit, OnDestroy {
             for (const id of ids) {
               try {
                 const registro = await this.excelService.getAnnualPlanById(id).toPromise();
-                registros.push(registro);
+                // Mapear los campos *_id a las columnas esperadas
+                registros.push({
+                  pais: registro.pais_id,
+                  razonSocial: registro.razon_social_id,
+                  ceco: registro.ceco_id,
+                  cuenta: registro.cuenta_id,
+                  areaPlanifica: registro.area_id,
+                  recurso: registro.recurso_id,
+                  localidadFisica: registro.local_id,
+                  moneda: registro.moneda_id,
+                  tarifa: registro.tarifa,
+                  planEnero: 0,
+                  planFebrero: 0,
+                  planMarzo: 0,
+                  planAbril: 0,
+                  planMayo: 0,
+                  planJunio: 0,
+                  planJulio: 0,
+                  planAgosto: 0,
+                  planSeptiembre: 0,
+                  planOctubre: 0,
+                  planNoviembre: 0,
+                  planDiciembre: registro.cantidad || 0
+                });
               } catch {}
             }
             this.excelData = registros;
