@@ -16,28 +16,20 @@ import { Router, NavigationEnd } from '@angular/router';
           <header class="bg-white shadow flex items-center px-8 h-16 sticky top-0 z-20">
             <nav class="flex gap-8" *ngIf="mostrarLinks">
               <a
-                class="text-gray-700 font-medium border-b-2 border-transparent hover:border-blue-500 transition"
                 [routerLink]="getLink('visualizar')"
-                routerLinkActive="border-blue-500 text-blue-600 font-semibold border-b-2"
-                [routerLinkActiveOptions]="{ exact: true }"
+                [ngClass]="isActiveLink('visualizar') ? 'text-blue-600 font-semibold border-blue-500 border-b-2' : 'text-gray-700 font-medium border-b-2 border-transparent hover:border-blue-500 transition'"
               >Visualizar</a>
               <a
-                class="text-gray-700 font-medium border-b-2 border-transparent hover:border-blue-500 transition"
                 [routerLink]="getLink('importar')"
-                routerLinkActive="border-blue-500 text-blue-600 font-semibold border-b-2"
-                [routerLinkActiveOptions]="{ exact: true }"
+                [ngClass]="isActiveLink('importar') ? 'text-blue-600 font-semibold border-blue-500 border-b-2' : 'text-gray-700 font-medium border-b-2 border-transparent hover:border-blue-500 transition'"
               >Importar</a>
               <a
-                class="text-gray-700 font-medium border-b-2 border-transparent hover:border-blue-500 transition"
                 [routerLink]="getLink('agregar-item')"
-                routerLinkActive="border-blue-500 text-blue-600 font-semibold border-b-2"
-                [routerLinkActiveOptions]="{ exact: true }"
+                [ngClass]="isActiveLink('agregar-item') ? 'text-blue-600 font-semibold border-blue-500 border-b-2' : 'text-gray-700 font-medium border-b-2 border-transparent hover:border-blue-500 transition'"
               >Agregar Ítem</a>
               <a
-                class="text-gray-700 font-medium border-b-2 border-transparent hover:border-blue-500 transition"
                 [routerLink]="getLink('eliminar')"
-                routerLinkActive="border-blue-500 text-blue-600 font-semibold border-b-2"
-                [routerLinkActiveOptions]="{ exact: true }"
+                [ngClass]="isActiveLink('eliminar') ? 'text-blue-600 font-semibold border-blue-500 border-b-2' : 'text-gray-700 font-medium border-b-2 border-transparent hover:border-blue-500 transition'"
               >Eliminar</a>
             </nav>
             <div class="ml-auto flex items-center gap-4">
@@ -80,5 +72,9 @@ export class MainLayoutComponent {
       url.startsWith('/gasto-real') ||
       url.startsWith('/confidencial')
     );
+  }
+  isActiveLink(action: string): boolean {
+    const url = this.router.url;
+    return url === this.getLink(action);
   }
 }

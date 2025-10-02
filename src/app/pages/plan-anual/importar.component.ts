@@ -12,8 +12,8 @@ import * as XLSX from 'xlsx';
   imports: [CommonModule, ImportarGastosComponent],
   template: `
     <app-importar-gastos
-      [titulo]="'Importar Plan Anual - Año 2025'"
-      [instrucciones]="'EL plan se importará para el año 2025. Descarga la plantilla oficial para este año.'"
+      [tituloHtml]="'Importar Plan Anual - Año <b>' + actualYear + '</b>'"
+      [instruccionesHtml]="'EL plan se importará para el año <b>' + actualYear + '</b>. Para realizar la importación del plan anual de presupuesto, primero debes descargar la <b>plantilla oficial</b>, la cual contiene los valores predeterminados y el formato correcto. Solo se admiten archivos en formato <b>.xlsx</b> o <b>.xls</b>.'"
       [textoBoton]="'Descargar plantilla de Plan Anual'"
       [bulletPoints]="[
         'El archivo debe contener las columnas obligatorias',
@@ -31,6 +31,7 @@ import * as XLSX from 'xlsx';
   `
 })
 export class PlanAnualImportarComponent implements OnInit, OnDestroy {
+  actualYear = new Date().getFullYear(); //se obtiene el año actual del sistema
   private destroy$ = new Subject<void>();
 
   excelData: ExcelRow[] = [];
@@ -64,9 +65,9 @@ export class PlanAnualImportarComponent implements OnInit, OnDestroy {
     'Plan Diciembre'
   ];
 
-  constructor(private excelService: ExcelService) {}
+  constructor(private excelService: ExcelService) { }
 
-  ngOnInit(): void {}
+  ngOnInit(): void { }
 
   ngOnDestroy(): void {
     this.destroy$.next();
@@ -272,7 +273,7 @@ export class PlanAnualImportarComponent implements OnInit, OnDestroy {
                   planNoviembre: 0,
                   planDiciembre: registro.cantidad || 0
                 });
-              } catch {}
+              } catch { }
             }
             this.excelData = registros;
             this.isLoading = false;

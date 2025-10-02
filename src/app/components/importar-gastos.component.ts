@@ -10,9 +10,9 @@ import { DataGridComponent } from './data-grid/data-grid.component';
   imports: [CommonModule, FormsModule, FileUploadComponent, DataGridComponent],
   template: `
     <div class="bg-white rounded-2xl shadow-lg p-4 sm:p-6 lg:p-10 w-full border border-gray-100">
-      <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-800 mb-2">{{ titulo }}</h1>
+      <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-800 mb-2" [innerHTML]="tituloHtml || titulo"></h1>
       <p class="text-gray-600 mb-6 text-sm sm:text-base">
-        <b>Instrucciones:</b> {{ instrucciones }}
+        <b>Instrucciones:</b> <span [innerHTML]="instruccionesHtml || instrucciones"></span>
       </p>
       <button
         class="w-full flex items-center justify-center gap-2 bg-sky-600 hover:bg-sky-700 text-white font-bold py-3 rounded-lg mb-8 text-base shadow transition"
@@ -93,6 +93,8 @@ import { DataGridComponent } from './data-grid/data-grid.component';
   `
 })
 export class ImportarGastosComponent {
+  @Input() tituloHtml?: string;
+  @Input() instruccionesHtml?: string;
   @Input() titulo: string = 'Importar Plan Anual - Año 2025';
   @Input() instrucciones: string = 'EL plan se importará para el año 2025. Para realizar la importación del plan anual de presupuesto, primero debes descargar la plantilla oficial, la cual contiene los valores predeterminados y el formato correcto. Solo se admiten archivos en format .xlsx o .xls.';
   @Input() textoBoton: string = 'Descargar plantilla de importación';
