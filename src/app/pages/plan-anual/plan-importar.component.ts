@@ -104,8 +104,8 @@ export class PlanAnualImportarComponent implements OnInit, OnDestroy {
     ws['!cols'] = [
       { wch: 15 },
       { wch: 25 },
-      { wch: 15 },
-      { wch: 15 },
+      { wch: 25 },
+      { wch: 45 },
       { wch: 20 },
       { wch: 15 },
       { wch: 20 },
@@ -205,15 +205,15 @@ export class PlanAnualImportarComponent implements OnInit, OnDestroy {
             throw new Error('Debe ingresar al menos un monto de plan mensual mayor a 0');
           }
           processedData.push({
-            pais: getValue('País').toString().trim(),
-            razonSocial: getValue('Razón Social').toString().trim(),
-            ceco: getValue('CeCo').toString().trim(),
-            cuenta: getValue('Cuenta').toString().trim(),
-            areaPlanifica: getValue('Área que planifica').toString().trim(),
-            recurso: getValue('Recurso').toString().trim(),
-            localidadFisica: getValue('Localidad física').toString().trim(),
+            pais: getValue('País').toString(),
+            razonSocial: getValue('Razón Social').toString(),
+            ceco: getValue('CeCo').toString(),
+            cuenta: getValue('Cuenta').toString(),
+            areaPlanifica: getValue('Área que planifica').toString(),
+            recurso: getValue('Recurso').toString(),
+            localidadFisica: getValue('Localidad física').toString(),
             tarifa: tarifa,
-            moneda: getValue('Moneda').toString().trim(),
+            moneda: getValue('Moneda').toString(),
             planEnero: planesValidados['Plan Enero'],
             planFebrero: planesValidados['Plan Febrero'],
             planMarzo: planesValidados['Plan Marzo'],
@@ -239,6 +239,7 @@ export class PlanAnualImportarComponent implements OnInit, OnDestroy {
         this.isLoading = false;
         return;
       }
+      console.log('Enviando a la API /budgeSystem/v1/annual-plans', processedData);
       this.excelService.uploadData(processedData)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
@@ -249,7 +250,11 @@ export class PlanAnualImportarComponent implements OnInit, OnDestroy {
             this.isLoading = false;
           },
           error: (err) => {
-            this.uploadMessage = 'Error al importar los datos';
+            if (err && err.error && err.error.message) {
+              this.uploadMessage = err.error.message;
+            } else {
+              this.uploadMessage = 'Error al importar los datos';
+            }
             this.uploadSuccess = false;
             this.isLoading = false;
           },
