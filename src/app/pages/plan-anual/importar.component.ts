@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ImportarGastosComponent } from '../../components/importar-gastos.component';
-import { ExcelService } from '../../services/excel.service';
+import { ExcelAnualPlanService } from '../../services/excel-anual-plan.service';
 import { ExcelRow } from '../../models/excel-data.model';
 import { Subject, takeUntil } from 'rxjs';
 import { CommonModule } from '@angular/common';
@@ -65,7 +65,7 @@ export class PlanAnualImportarComponent implements OnInit, OnDestroy {
     'Plan Diciembre'
   ];
 
-  constructor(private excelService: ExcelService) { }
+  constructor(private excelService: ExcelAnualPlanService) { }
 
   ngOnInit(): void { }
 

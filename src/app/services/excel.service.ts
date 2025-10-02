@@ -8,7 +8,7 @@ import { ExcelRow, UploadResponse, FileValidation } from '../models/excel-data.m
 @Injectable({
   providedIn: 'root'
 })
-export class ExcelService {
+export class ExcelAnualPlanService {
   private apiUrl = `${environment.apiBaseUrl}/api`; // URL del backend NestJS
 
   private requiredColumns = ['pais', 'razonSocial', 'cuenta', 'ceco', 'moneda', 'monto', 'glosa'];
@@ -286,21 +286,21 @@ export class ExcelService {
   // Mapea ExcelRow al formato del backend usando valores por defecto
   private mapExcelRowToBackend(row: ExcelRow): any {
     return {
-      pais_id: 1, // Valor por defecto, reemplazar por lógica real si es necesario
-      razon_social_id: 1, // Valor por defecto
-      ceco_id: 1, // Valor por defecto
-      cuenta_id: 1, // Valor por defecto
-      area_id: 1, // Valor por defecto
-      recurso_id: 1, // Valor por defecto
-      local_id: 1, // Valor por defecto
-      tarifa: row.tarifa || 0,
-      moneda_id: 1, // Valor por defecto
-      anio: new Date().getFullYear(), // Año actual
-      usuario_id: 1, // Valor por defecto
-      fecha_carga: new Date().toISOString().slice(0, 19).replace('T', ' '), // Fecha actual en formato backend
-      tipo_carga: 'NORMAL', // Valor por defecto
-      mes: new Date().getMonth() + 1, // Mes actual
-      cantidad: row.planDiciembre || 0 // Ejemplo: usar planDiciembre como cantidad
+      pais: row.pais,
+      razon_social: row.razonSocial,
+      ceco: row.ceco,
+      cuenta: row.cuenta,
+      area: row.areaPlanifica,
+      recurso: row.recurso,
+      localidad: row.localidadFisica,
+      tarifa: row.tarifa,
+      moneda: row.moneda,
+      anio: 2024, // O el año que corresponda
+      usuario_id: 1, // O el usuario real
+      fecha_carga: "2024-12-31 21:00:00", // O la fecha real
+      tipo_carga: "NORMAL",
+      mes: 6, // O el mes real
+      cantidad: row.planDiciembre // O el campo que corresponda
     };
   }
 
