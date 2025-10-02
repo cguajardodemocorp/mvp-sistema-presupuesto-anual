@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
-import { SidebarComponent } from './sidebar/sidebar.component'; // Importa el SidebarComponent
+import { SidebarComponent } from './sidebar/sidebar.component';
+import { Router, NavigationEnd } from '@angular/router';
 
 @Component({
   selector: 'app-main-layout',
@@ -11,8 +12,8 @@ import { SidebarComponent } from './sidebar/sidebar.component'; // Importa el Si
     <div class="flex min-h-screen bg-gray-100">
       <app-sidebar></app-sidebar>
       <div class="flex-1 flex flex-col ml-[280px]">
-        <!-- Header de navegación (placeholder) -->
-        <header class="bg-white shadow flex items-center px-8 h-16 sticky top-0 z-20">
+        <!-- Header de navegación (oculto en /portal) -->
+          <header *ngIf="mostrarHeader" class="bg-white shadow flex items-center px-8 h-16 sticky top-0 z-20">
           <nav class="flex gap-8">
             <a class="text-gray-700 font-medium border-b-2 border-transparent hover:border-blue-500 transition" href="#">Visualizar</a>
             <a class="text-blue-600 font-semibold border-b-2 border-blue-500" href="#">Importar</a>
@@ -33,4 +34,22 @@ import { SidebarComponent } from './sidebar/sidebar.component'; // Importa el Si
     </div>
   `
 })
-export class MainLayoutComponent {}
+export class MainLayoutComponent implements OnInit {
+  mostrarHeader = true;
+  constructor(public router: Router) {}
+
+  ngOnInit(): void {
+    const allowedRoutes = ['/plan-anual', '/confidencial', '/gasto-real'];
+    this.router.events.subscribe(event => {
+      if (event instanceof NavigationEnd) {
+        this.mostrarHeader = allowedRoutes.includes(event.urlAfterRedirects);
+      }
+    });
+    // Inicializa el estado al cargar
+    this.mostrarHeader = allowedRoutes.includes(this.router.url);
+  }
+
+  toggleHeader(): void {
+    this.mostrarHeader = !this.mostrarHeader;
+  }
+}
