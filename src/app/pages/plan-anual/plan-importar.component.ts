@@ -241,49 +241,22 @@ export class PlanAnualImportarComponent implements OnInit, OnDestroy {
       }
       this.excelService.uploadData(processedData)
         .pipe(takeUntil(this.destroy$))
-        .subscribe(
-          async (responses) => {
+        .subscribe({
+          next: async (responses) => {
             this.uploadMessage = `Se importaron ${responses.length} registros.`;
             this.uploadSuccess = true;
-            const ids = responses.map(r => r.id).filter(id => !!id);
-            const registros: any[] = [];
-            for (const id of ids) {
-              try {
-                const registro = await this.excelService.getAnnualPlanById(id).toPromise();
-                registros.push({
-                  pais: registro.pais_id,
-                  razonSocial: registro.razon_social_id,
-                  ceco: registro.ceco_id,
-                  cuenta: registro.cuenta_id,
-                  areaPlanifica: registro.area_id,
-                  recurso: registro.recurso_id,
-                  localidadFisica: registro.local_id,
-                  moneda: registro.moneda_id,
-                  tarifa: registro.tarifa,
-                  planEnero: 0,
-                  planFebrero: 0,
-                  planMarzo: 0,
-                  planAbril: 0,
-                  planMayo: 0,
-                  planJunio: 0,
-                  planJulio: 0,
-                  planAgosto: 0,
-                  planSeptiembre: 0,
-                  planOctubre: 0,
-                  planNoviembre: 0,
-                  planDiciembre: registro.cantidad || 0
-                });
-              } catch { }
-            }
-            this.excelData = registros;
+            // Opcional: puedes consultar detalles si lo necesitas
             this.isLoading = false;
           },
-          () => {
+          error: (err) => {
             this.uploadMessage = 'Error al importar los datos';
             this.uploadSuccess = false;
             this.isLoading = false;
+          },
+          complete: () => {
+            this.isLoading = false;
           }
-        );
+        });
     } catch (error: unknown) {
       this.uploadMessage = error instanceof Error ? error.message : 'Error al procesar el archivo';
       this.uploadSuccess = false;

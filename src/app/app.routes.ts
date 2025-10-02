@@ -4,20 +4,20 @@ import { PortalPageComponent } from './pages/portal-page.component';
 import { ConfidencialPageComponent } from './pages/confidencial.component';
 import { AjustesPageComponent } from './pages/ajustes.component';
 
-import { PlanAnualVisualizarComponent } from './pages/plan-anual/visualizar.component';
-import { PlanAnualImportarComponent } from './pages/plan-anual/importar.component';
-import { PlanAnualAgregarItemComponent } from './pages/plan-anual/agregar-item.component';
-import { PlanAnualEliminarComponent } from './pages/plan-anual/eliminar.component';
+import { PlanAnualVisualizarComponent } from './pages/plan-anual/plan-visualizar.component';
+import { PlanAnualImportarComponent } from './pages/plan-anual/plan-importar.component';
+import { PlanAnualAgregarItemComponent } from './pages/plan-anual/plan-agregar-item.component';
+import { PlanAnualEliminarComponent } from './pages/plan-anual/plan-eliminar.component';
 
-import { GastoRealVisualizarComponent } from './pages/gasto-real/visualizar.component';
-import { GastoRealImportarComponent } from './pages/gasto-real/importar.component';
-import { GastoRealAgregarItemComponent } from './pages/gasto-real/agregar-item.component';
-import { GastoRealEliminarComponent } from './pages/gasto-real/eliminar.component';
+import { GastoRealVisualizarComponent } from './pages/gasto-real/gasto-visualizar.component';
+import { GastoRealImportarComponent } from './pages/gasto-real/gasto-importar.component';
+import { GastoRealAgregarItemComponent } from './pages/gasto-real/gasto-agregar-item.component';
+import { GastoRealEliminarComponent } from './pages/gasto-real/gasto-eliminar.component';
 
-import { ConfidencialVisualizarComponent } from './pages/confidencial/visualizar.component';
-import { ConfidencialImportarComponent } from './pages/confidencial/importar.component';
-import { ConfidencialAgregarItemComponent } from './pages/confidencial/agregar-item.component';
-import { ConfidencialEliminarComponent } from './pages/confidencial/eliminar.component';
+import { ConfidencialVisualizarComponent } from './pages/confidencial/confidencial-visualizar.component';
+import { ConfidencialImportarComponent } from './pages/confidencial/confidencial-importar.component';
+import { ConfidencialAgregarItemComponent } from './pages/confidencial/confidencial-agregar-item.component';
+import { ConfidencialEliminarComponent } from './pages/confidencial/confidencial-eliminar.component';
 
 export const routes: Routes = [
   {
