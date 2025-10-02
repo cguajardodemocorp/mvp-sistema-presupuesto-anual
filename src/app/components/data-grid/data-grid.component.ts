@@ -298,11 +298,12 @@ export class DataGridComponent {
     }
   }
 
-  formatAmount(amount: number): string {
+  formatAmount(amount: number | undefined | null): string {
+    const safeAmount = typeof amount === 'number' && !isNaN(amount) ? amount : 0;
     return new Intl.NumberFormat('es-CO', {
       minimumFractionDigits: 0,
       maximumFractionDigits: 0
-    }).format(amount);
+    }).format(safeAmount);
   }
 
   getTituloGrid(): string {
@@ -317,9 +318,9 @@ export class DataGridComponent {
   }
 
   getTotalPlan(row: ExcelRow): number {
-    return row.planEnero + row.planFebrero + row.planMarzo + row.planAbril +
-           row.planMayo + row.planJunio + row.planJulio + row.planAgosto +
-           row.planSeptiembre + row.planOctubre + row.planNoviembre + row.planDiciembre;
+    return (row.planEnero ?? 0) + (row.planFebrero ?? 0) + (row.planMarzo ?? 0) + (row.planAbril ?? 0)
+      + (row.planMayo ?? 0) + (row.planJunio ?? 0) + (row.planJulio ?? 0) + (row.planAgosto ?? 0)
+      + (row.planSeptiembre ?? 0) + (row.planOctubre ?? 0) + (row.planNoviembre ?? 0) + (row.planDiciembre ?? 0);
   }
 
   getGlosaFromRow(row: ExcelRow): string {

@@ -1,8 +1,6 @@
 import { Routes } from '@angular/router';
 import { MainLayoutComponent } from './components/main-layout.component';
 import { PortalPageComponent } from './pages/portal-page.component';
-import { PlanAnualPageComponent } from './pages/plan-anual.component';
-import { GastoRealPageComponent } from './pages/gasto-real.component';
 import { ConfidencialPageComponent } from './pages/confidencial.component';
 import { AjustesPageComponent } from './pages/ajustes.component';
 
@@ -28,13 +26,13 @@ export const routes: Routes = [
     children: [
       { path: '', redirectTo: 'portal', pathMatch: 'full' },
       { path: 'portal', component: PortalPageComponent },
-  { path: 'plan-anual', component: PlanAnualPageComponent },
+  { path: 'plan-anual', redirectTo: 'plan-anual/importar', pathMatch: 'full' },
   { path: 'plan-anual/visualizar', component: PlanAnualVisualizarComponent },
   { path: 'plan-anual/importar', component: PlanAnualImportarComponent },
   { path: 'plan-anual/agregar-item', component: PlanAnualAgregarItemComponent },
   { path: 'plan-anual/eliminar', component: PlanAnualEliminarComponent },
 
-  { path: 'gasto-real', component: GastoRealPageComponent },
+  { path: 'gasto-real', redirectTo: 'gasto-real/importar', pathMatch: 'full' },
   { path: 'gasto-real/visualizar', component: GastoRealVisualizarComponent },
   { path: 'gasto-real/importar', component: GastoRealImportarComponent },
   { path: 'gasto-real/agregar-item', component: GastoRealAgregarItemComponent },

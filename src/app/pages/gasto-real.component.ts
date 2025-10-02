@@ -1,23 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { ImportarGastosComponent } from '../components/importar-gastos.component';
-import { ExcelService } from '../services/excel.service';
-import { ExcelRow } from '../models/excel-data.model';
-import { Subject, takeUntil } from 'rxjs';
-import { CommonModule } from '@angular/common';
-import * as XLSX from 'xlsx';
-
-@Component({
-  selector: 'app-gasto-real-page',
-  standalone: true,
-  imports: [CommonModule, ImportarGastosComponent],
-  template: `
-    <app-importar-gastos
-      [titulo]="'Importar gastos reales para el año 2025'"
-      [instrucciones]="'Los gastos se agregarán para el año 2025 y mes seleccionado. Columnas requeridas: País, Razón Social, Cuenta, CeCo, Moneda, Monto, Glosa.'"
-      [textoBoton]="'Descargar plantilla de Gastos Reales'"
-      [bulletPoints]="mostrarBulletPoints ? bulletPointsPersonalizados : []"
-      [tipoArchivo]="'gasto-real'"
-      [mostrarSelectorMes]="true"
+// El archivo ha sido eliminado completamente.
       [mostrarSelectorAno]="false"
       [mostrarTasasConversion]="false"
       [labelCargaArchivo]="'Cargar Excel de Gastos Reales'"
@@ -37,35 +18,7 @@ import * as XLSX from 'xlsx';
   `
 })
 export class GastoRealPageComponent implements OnInit, OnDestroy {
-  private destroy$ = new Subject<void>();
-
-  excelData: ExcelRow[] = [];
-  isLoading = false;
-  uploadMessage = '';
-  uploadSuccess = false;
-  validationErrors: string[] = [];
-  selectedMonth = '01';
-
-  // Configuración personalizable de bullet points
-  mostrarBulletPoints = false; // Controla si se muestran o no
-  bulletPointsPersonalizados = [
-    'Selecciona el mes de los gastos reales',
-    'El archivo debe tener formato .xlsx o .xls', 
-    'Revisa que los montos sean correctos',
-    'Asegúrate de que todas las columnas requeridas estén presentes',
-    'Los datos deben corresponder al año y mes seleccionado'
-  ];
-
-  // Campos requeridos para el template de Gastos Reales
-  requiredColumns = [
-    'País',
-    'Razón Social',
-    'CeCo',
-    'Cuenta',
-    'Monto',
-    'Moneda',
-    'Glosa',
-  ];
+// Archivo eliminado. No debe contener código.
 
   constructor(private excelService: ExcelService) {}
 
@@ -116,54 +69,7 @@ export class GastoRealPageComponent implements OnInit, OnDestroy {
     'Razón Social',
     'CeCo',
     'Cuenta',
-    'Monto',
-    'Moneda',
-    'Glosa',
-    ];
-
-    // Crear una hoja con solo los encabezados
-    const ws = XLSX.utils.aoa_to_sheet([headers]);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Gastos Reales');
-
-    ws['!cols'] = [
-      { wch: 15 },  // País
-      { wch: 25 },  // Razón Social
-      { wch: 15 },  // CeCo
-      { wch: 15 },  // Cuenta
-      { wch: 15 },  // Monto
-      { wch: 10 },  // Moneda
-      { wch: 30 }   // Glosa
-    ];
-
-    XLSX.writeFile(wb, 'plantilla_gastos_reales.xlsx');
-  };
-
-  async onFileSelected(file: File): Promise<void> {
-    this.uploadMessage = '';
-    this.validationErrors = [];
-
-    const validation = this.excelService.validateFile(file);
-    if (!validation.isValid) {
-      this.uploadMessage = validation.errors.join(', ');
-      this.uploadSuccess = false;
-      return;
-    }
-
-    this.isLoading = true;
-
-    try {
-      // Leer el archivo Excel y obtener los encabezados
-      const data = await file.arrayBuffer();
-      const workbook = XLSX.read(data, { type: 'array' });
-      const firstSheetName = workbook.SheetNames[0];
-      const worksheet = workbook.Sheets[firstSheetName];
-      const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-
-      const headers = jsonData[0] as string[];
-      const missingColumns = this.requiredColumns.filter(col => !headers.includes(col));
-      if (missingColumns.length > 0) {
-        this.uploadMessage = `Faltan las siguientes columnas requeridas: ${missingColumns.join(', ')}`;
+// Archivo eliminado. No debe contener código.
         this.uploadSuccess = false;
         this.isLoading = false;
         return;
