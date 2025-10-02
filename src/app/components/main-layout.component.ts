@@ -14,7 +14,7 @@ import { Router, NavigationEnd } from '@angular/router';
       <div class="flex-1 flex flex-col ml-[280px]">
         <!-- Header de navegación (oculto en /portal) -->
           <header class="bg-white shadow flex items-center px-8 h-16 sticky top-0 z-20">
-            <nav class="flex gap-8">
+            <nav class="flex gap-8" *ngIf="mostrarLinks">
               <a
                 class="text-gray-700 font-medium border-b-2 border-transparent hover:border-blue-500 transition"
                 [routerLink]="getLink('visualizar')"
