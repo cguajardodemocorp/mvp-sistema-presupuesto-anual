@@ -5,9 +5,6 @@ import { PlanAnualPageComponent } from './pages/plan-anual.component';
 import { GastoRealPageComponent } from './pages/gasto-real.component';
 import { ConfidencialPageComponent } from './pages/confidencial.component';
 import { AjustesPageComponent } from './pages/ajustes.component';
-import { AjustesDatosValidosComponent } from './pages/ajustes/datos-validos.component';
-import { AjustesTasasMonetariasComponent } from './pages/ajustes/tasas-monetarias.component';
-import { AjustesUsuariosComponent } from './pages/ajustes/usuarios.component';
 
 import { PlanAnualVisualizarComponent } from './pages/plan-anual/visualizar.component';
 import { PlanAnualImportarComponent } from './pages/plan-anual/importar.component';
@@ -48,10 +45,7 @@ export const routes: Routes = [
   { path: 'confidencial/importar', component: ConfidencialImportarComponent },
   { path: 'confidencial/agregar-item', component: ConfidencialAgregarItemComponent },
   { path: 'confidencial/eliminar', component: ConfidencialEliminarComponent },
-  { path: 'ajustes', component: AjustesPageComponent },
-  { path: 'ajustes/datos-validos', component: AjustesDatosValidosComponent },
-  { path: 'ajustes/tasas-monetarias', component: AjustesTasasMonetariasComponent },
-  { path: 'ajustes/usuarios', component: AjustesUsuariosComponent },
+      { path: 'ajustes', component: AjustesPageComponent },
       { path: '**', redirectTo: 'portal' }
     ]
   }
