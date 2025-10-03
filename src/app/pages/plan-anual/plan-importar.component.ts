@@ -101,6 +101,7 @@ export class PlanAnualImportarComponent implements OnInit, OnDestroy {
     const ws = XLSX.utils.aoa_to_sheet([headers]);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Plan Anual');
+    //Ancho de columnas de plantilla, se ajustan segun orden del arreglo anterior
     ws['!cols'] = [
       { wch: 15 },
       { wch: 25 },
