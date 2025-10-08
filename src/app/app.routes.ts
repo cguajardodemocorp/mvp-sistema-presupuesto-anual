@@ -19,6 +19,14 @@ import { ConfidencialImportarComponent } from './pages/confidencial/confidencial
 import { ConfidencialAgregarItemComponent } from './pages/confidencial/confidencial-agregar-item.component';
 import { ConfidencialEliminarComponent } from './pages/confidencial/confidencial-eliminar.component';
 
+
+import { AjustesDatosValidosComponent } from './pages/ajustes/datos-validos.component';
+import { AjustesTasasMonetariasComponent } from './pages/ajustes/tasas-monetarias.component';
+import { AjustesUsuariosComponent } from './pages/ajustes/usuarios.component';
+
+
+
+
 export const routes: Routes = [
   {
     path: '',
@@ -39,11 +47,17 @@ export const routes: Routes = [
   { path: 'gasto-real/eliminar', component: GastoRealEliminarComponent },
 
   { path: 'confidencial', component: ConfidencialPageComponent },
+  { path: 'confidencial', redirectTo: 'confidencial/importar', pathMatch: 'full' },
   { path: 'confidencial/visualizar', component: ConfidencialVisualizarComponent },
   { path: 'confidencial/importar', component: ConfidencialImportarComponent },
   { path: 'confidencial/agregar-item', component: ConfidencialAgregarItemComponent },
   { path: 'confidencial/eliminar', component: ConfidencialEliminarComponent },
-      { path: 'ajustes', component: AjustesPageComponent },
+
+  { path: 'ajustes', component: AjustesPageComponent },
+  { path: 'ajustes', redirectTo: 'ajustes/datos-validos', pathMatch: 'full' },
+  { path: 'ajustes/datos-validos', component: AjustesDatosValidosComponent },
+  { path: 'ajustes/tasas-monetarias', component: AjustesTasasMonetariasComponent },
+  { path: 'ajustes/usuarios', component: AjustesUsuariosComponent },
       { path: '**', redirectTo: 'portal' }
     ]
   }
