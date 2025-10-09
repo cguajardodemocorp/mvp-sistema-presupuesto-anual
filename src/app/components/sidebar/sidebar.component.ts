@@ -184,6 +184,14 @@ export class SidebarComponent implements OnInit {
     if (this.router.url === '/' || this.router.url === '') {
       this.router.navigate(['portal']);
     }
+    // Si estamos exactamente en /confidencial, redirigir a /confidencial/importar
+    if (this.router.url === '/confidencial') {
+      this.router.navigate(['/confidencial/importar']);
+    }
+    // Si estamos exactamente en /ajustes, redirigir a /ajustes/datos-validos
+    if (this.router.url === '/ajustes') {
+      this.router.navigate(['/ajustes/datos-validos']);
+    }
   }
 
   private updateSelectedFromUrl() {
@@ -205,7 +213,13 @@ export class SidebarComponent implements OnInit {
 
   navigate(modulo: string) {
     this.selected = modulo;
-    this.router.navigate([modulo]);
+    if (modulo === 'ajustes') {
+      this.router.navigate(['/ajustes/datos-validos']);
+    } else if (modulo === 'confidencial') {
+      this.router.navigate(['/confidencial/importar']);
+    } else {
+      this.router.navigate([modulo]);
+    }
   }
 }
 
