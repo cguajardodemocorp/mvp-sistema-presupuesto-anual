@@ -26,12 +26,18 @@ import * as XLSX from 'xlsx';
       [validationErrors]="validationErrors"
       [excelData]="excelData"
       [onDownloadTemplate]="downloadPlanAnualTemplate"
+      [opcionesAno]="[
+        { value: actualYear.toString(), label: actualYear.toString() },
+        { value: (actualYear - 1).toString(), label: (actualYear - 1).toString() }
+      ]"
+      [selectedYear]="selectedYear"
       (fileSelected)="onFileSelected($event)"
     ></app-importar-gastos>
   `
 })
 export class PlanAnualImportarComponent implements OnInit, OnDestroy {
   actualYear = new Date().getFullYear(); //se obtiene el año actual del sistema
+  selectedYear = this.actualYear.toString();
   private destroy$ = new Subject<void>();
 
   excelData: ExcelRow[] = [];

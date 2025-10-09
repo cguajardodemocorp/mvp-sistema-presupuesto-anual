@@ -40,7 +40,7 @@ import { DataGridComponent } from './data-grid/data-grid.component';
         <div class="mb-8">
           <select
             id="year"
-            [(ngModel)]="selectedMonth"
+            [(ngModel)]="yearSeleccionado"
             class="w-full px-4 py-3 bg-gray-100 text-gray-800 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-sky-200 text-base sm:text-lg"
           >
             <option *ngFor="let opcion of opcionesAno" [value]="opcion.value">{{ opcion.label }}</option>
@@ -93,6 +93,13 @@ import { DataGridComponent } from './data-grid/data-grid.component';
   `
 })
 export class ImportarGastosComponent {
+  @Input() selectedYear: string = '01';
+  yearSeleccionado: string = '';
+
+  ngOnInit() {
+    // Inicializa el selector de año con '01' o el primer valor disponible
+    this.yearSeleccionado = this.selectedYear || (this.opcionesAno.length ? this.opcionesAno[0].value : '');
+  }
   @Input() tituloHtml?: string;
   @Input() instruccionesHtml?: string;
   @Input() titulo: string = 'Importar Plan Anual - Año 2025';
@@ -119,6 +126,7 @@ export class ImportarGastosComponent {
     { value: '01', label: '2025' },
     { value: '02', label: '2024' }
   ];
+
 
   @Output() downloadTemplate = new EventEmitter<void>();
   @Output() fileSelected = new EventEmitter<File>();
