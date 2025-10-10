@@ -56,18 +56,18 @@ import { DataGridComponent } from './data-grid/data-grid.component';
           [(ngModel)]="selectedMonth"
           class="w-full px-4 py-3 bg-gray-100 text-gray-800 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-sky-200 text-base sm:text-lg"
         >
-          <option value="01">Enero</option>
-          <option value="02">Febrero</option>
-          <option value="03">Marzo</option>
-          <option value="04">Abril</option>
-          <option value="05">Mayo</option>
-          <option value="06">Junio</option>
-          <option value="07">Julio</option>
-          <option value="08">Agosto</option>
-          <option value="09">Septiembre</option>
-          <option value="10">Octubre</option>
-          <option value="11">Noviembre</option>
-          <option value="12">Diciembre</option>
+          <option value="01">01/ {{ actualYear }} (Enero) </option>
+          <option value="02">02/ {{ actualYear }} (Febrero)</option>
+          <option value="03">03/ {{ actualYear }} (Marzo)</option>
+          <option value="04">04/ {{ actualYear }} (Abril)</option>
+          <option value="05">05/ {{ actualYear }} (Mayo)</option>
+          <option value="06">06/ {{ actualYear }} (Junio)</option>
+          <option value="07">07/ {{ actualYear }} (Julio)</option>
+          <option value="08">08/ {{ actualYear }} (Agosto)</option>
+          <option value="09">09/ {{ actualYear }} (Septiembre)</option>
+          <option value="10">10/ {{ actualYear }} (Octubre)</option>
+          <option value="11">11/ {{ actualYear }} (Noviembre)</option>
+          <option value="12">12/ {{ actualYear }} (Diciembre)</option>
         </select>
       </div>
       
@@ -93,6 +93,7 @@ import { DataGridComponent } from './data-grid/data-grid.component';
   `
 })
 export class ImportarGastosComponent {
+  actualYear = new Date().getFullYear(); //se obtiene el año actual del sistema
   @Input() selectedYear: string = '01';
   yearSeleccionado: string = '';
 

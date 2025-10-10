@@ -31,7 +31,7 @@ import * as XLSX from 'xlsx';
         { value: (actualYear - 1).toString(), label: (actualYear - 1).toString() }
       ]"
       [selectedYear]="selectedYear"
-      (fileSelected)="onFileSelected($event)"
+      (fileSelected)="onFilePlanSelected($event)"
     ></app-importar-gastos>
   `
 })
@@ -134,7 +134,7 @@ export class PlanAnualImportarComponent implements OnInit, OnDestroy {
     XLSX.writeFile(wb, 'plantilla_plan_anual.xlsx');
   };
 
-  async onFileSelected(file: File): Promise<void> {
+  async onFilePlanSelected(file: File): Promise<void> {
     this.uploadMessage = '';
     this.validationErrors = [];
     const validation = this.excelService.validateFile(file);
