@@ -60,7 +60,8 @@ import { ExcelRow } from '../../models/excel-data.model';
           <tbody>
             <!-- Filas para Plan Anual -->
             <ng-container *ngIf="tipoGrid === 'plan-anual'">
-              <tr *ngFor="let row of paginatedData; let i = index" class="fade-in">
+              <tr *ngFor="let row of paginatedData; let i = index" 
+                  [ngClass]="{'fade-in': true, 'error-row': isRowError((currentPage - 1) * pageSize + i)}">
                 <td class="row-number">{{ (currentPage - 1) * pageSize + i + 1 }}</td>
                 <td>{{ row.pais }}</td>
                 <td>{{ row.razonSocial }}</td>
