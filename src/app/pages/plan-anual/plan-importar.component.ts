@@ -190,27 +190,25 @@ export class PlanAnualImportarComponent implements OnInit, OnDestroy {
             'Plan Mayo', 'Plan Junio', 'Plan Julio', 'Plan Agosto',
             'Plan Septiembre', 'Plan Octubre', 'Plan Noviembre', 'Plan Diciembre'
           ];
-          const planesValidados: { [key: string]: number } = {};
-          let hayAlMenosUnPlan = false;
+          const planesValidados: { [key: string]: number | undefined } = {};
           for (const mes of mesesPlan) {
             let monto = getValue(mes);
             if (!monto && monto !== 0) {
-              monto = 0;
+              // Si el campo está vacío o undefined, se deja como undefined (blanco)
+              planesValidados[mes] = undefined;
             } else {
               monto = typeof monto === 'number'
                 ? monto
                 : parseFloat(monto.toString().replace(/[^\d.-]/g, ''));
               if (isNaN(monto)) {
-                monto = 0;
-              } else if (monto > 0) {
-                hayAlMenosUnPlan = true;
+                // Si no es un número válido, se deja como undefined (blanco)
+                planesValidados[mes] = undefined;
+              } else {
+                planesValidados[mes] = monto;
               }
             }
-            planesValidados[mes] = monto;
           }
-          if (!hayAlMenosUnPlan) {
-            throw new Error('Debe ingresar al menos un monto de plan mensual mayor a 0');
-          }
+          // Eliminada la validación obligatoria de al menos un plan mayor a 0
           processedData.push({
             pais: getValue('País').toString(),
             razonSocial: getValue('Razón Social').toString(),

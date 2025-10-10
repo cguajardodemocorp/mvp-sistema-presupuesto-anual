@@ -31,6 +31,7 @@ import * as XLSX from 'xlsx';
       [uploadSuccess]="uploadSuccess"
       [validationErrors]="validationErrors"
       [excelData]="excelData"
+      [rowErrors]="rowErrors"
       [onDownloadTemplate]="downloadGastoRealTemplate"
       (fileSelected)="onFileSelected($event)"
     ></app-importar-gastos>
@@ -47,6 +48,7 @@ export class GastoRealImportarComponent implements OnInit, OnDestroy {
   validationErrors: string[] = [];
   selectedMonth = '01';
   selectedYear = '01';
+  rowErrors: number[] = []; // Array para almacenar índices de filas con errores
 
   // Configuración personalizable de bullet points
   mostrarBulletPoints = false; // Controla si se muestran o no
@@ -184,9 +186,28 @@ export class GastoRealImportarComponent implements OnInit, OnDestroy {
       this.excelService.uploadData(processedData)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
-          next: (responses) => {
-            this.uploadMessage = `Se importaron ${responses.length} registros.`;
-            this.uploadSuccess = true;
+          next: (response) => {
+            const successCount = response.success.length;
+            const errorCount = response.errors.length;
+            
+            // Actualizar array de filas con errores
+            this.rowErrors = response.errors.map(error => error.rowIndex);
+            
+            if (errorCount > 0) {
+              // Generar mensaje con detalles de errores
+              const errorMessages = response.errors.map(err => 
+                `Fila ${err.rowIndex + 1}: ${err.error}`
+              ).join('\n');
+              
+              this.uploadMessage = `Se importaron ${successCount} registros. ${errorCount} registros con errores:\n${errorMessages}`;
+              this.uploadSuccess = successCount > 0;
+              this.validationErrors = response.errors.map(err => `Fila ${err.rowIndex + 1}: ${err.error}`);
+            } else {
+              this.uploadMessage = `Se importaron ${successCount} registros exitosamente.`;
+              this.uploadSuccess = true;
+              this.validationErrors = [];
+            }
+            
             this.isLoading = false;
           },
           error: (err) => {
@@ -197,6 +218,7 @@ export class GastoRealImportarComponent implements OnInit, OnDestroy {
             }
             this.uploadSuccess = false;
             this.isLoading = false;
+            this.rowErrors = [];
           }
         });
     } catch (error: unknown) {

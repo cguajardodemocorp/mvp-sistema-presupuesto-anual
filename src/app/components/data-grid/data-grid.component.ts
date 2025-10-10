@@ -53,7 +53,7 @@ import { ExcelRow } from '../../models/excel-data.model';
               <th>Cuenta</th>
               <th>Moneda</th>
               <th>Monto</th>
-              <th>Glosa</th>
+              <th>Glosa/Descripción</th>
             </tr>
           </thead>
           
@@ -88,14 +88,15 @@ import { ExcelRow } from '../../models/excel-data.model';
             
             <!-- Filas para Gasto Real -->
             <ng-container *ngIf="tipoGrid === 'gasto-real'">
-              <tr *ngFor="let row of paginatedData; let i = index" class="fade-in">
+              <tr *ngFor="let row of paginatedData; let i = index" 
+                  [ngClass]="{'fade-in': true, 'error-row': isRowError((currentPage - 1) * pageSize + i)}">
                 <td class="row-number">{{ (currentPage - 1) * pageSize + i + 1 }}</td>
                 <td>{{ row.pais }}</td>
                 <td>{{ row.razonSocial }}</td>
                 <td>{{ row.ceco }}</td>
                 <td>{{ row.cuenta }}</td>
                 <td>{{ row.moneda }}</td>
-                <td class="amount">{{ formatAmount(getTotalPlan(row)) }}</td>
+                <td class="amount">{{ formatAmount(getMontoFromRow(row)) }}</td>
                 <td>{{ getGlosaFromRow(row) || '-' }}</td>
               </tr>
             </ng-container>
@@ -199,6 +200,19 @@ import { ExcelRow } from '../../models/excel-data.model';
       background: var(--light-blue);
     }
 
+    .error-row {
+      background-color: #fee2e2 !important; /* bg-red-100 */
+      border-left: 4px solid #dc2626 !important; /* border-red-600 */
+    }
+
+    .error-row:hover {
+      background-color: #fecaca !important; /* bg-red-200 en hover */
+    }
+
+    .error-row td {
+      color: #991b1b; /* text-red-800 */
+    }
+
     .row-number {
       font-weight: 600;
       color: var(--gray-500);
@@ -272,6 +286,7 @@ import { ExcelRow } from '../../models/excel-data.model';
 export class DataGridComponent {
   @Input() data: ExcelRow[] = [];
   @Input() tipoGrid: 'plan-anual' | 'gasto-real' | 'otro' = 'plan-anual';
+  @Input() rowErrors: number[] = []; // Array de índices de filas con errores
   
   currentPage = 1;
   pageSize = 50;
@@ -323,9 +338,18 @@ export class DataGridComponent {
       + (row.planSeptiembre ?? 0) + (row.planOctubre ?? 0) + (row.planNoviembre ?? 0) + (row.planDiciembre ?? 0);
   }
 
-  getGlosaFromRow(row: ExcelRow): string {
-    // Para gastos reales, podrías usar algún campo como descripción
-    // Por ahora retornamos un placeholder
-    return 'Detalle de gasto';
+  getGlosaFromRow(row: any): string {
+    // Busca el campo glosa en diferentes posibles propiedades
+    return row.glosa || row.descripcion || 'Detalle de gasto';
+  }
+
+  getMontoFromRow(row: any): number {
+    // Busca el campo monto en diferentes posibles propiedades del payload
+    return row.monto || row.planDiciembre || 0;
+  }
+
+  isRowError(rowIndex: number): boolean {
+    // Verifica si el índice de la fila está en el array de errores
+    return this.rowErrors.includes(rowIndex);
   }
 }

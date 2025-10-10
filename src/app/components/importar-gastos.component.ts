@@ -88,7 +88,7 @@ import { DataGridComponent } from './data-grid/data-grid.component';
           </ul>
         </div>
       </div>
-      <app-data-grid [data]="excelData" [tipoGrid]="tipoArchivo"></app-data-grid>
+      <app-data-grid [data]="excelData" [tipoGrid]="tipoArchivo" [rowErrors]="rowErrors"></app-data-grid>
     </div>
   `
 })
@@ -116,6 +116,7 @@ export class ImportarGastosComponent {
   @Input() uploadSuccess: boolean = false;
   @Input() validationErrors: string[] = [];
   @Input() excelData: any[] = [];
+  @Input() rowErrors: number[] = []; // Array de índices de filas con errores
   
   // Nuevos inputs para mayor configurabilidad
   @Input() mostrarSelectorMes: boolean = true;
