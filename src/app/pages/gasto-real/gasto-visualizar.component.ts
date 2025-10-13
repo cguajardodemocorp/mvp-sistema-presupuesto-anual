@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Subject, takeUntil, forkJoin } from 'rxjs';
 import { DataGridVisualizarComponent } from '../../components/data-grid-visualizar/data-grid-visualizar.component';
 import { GastoRealVisualizacionService, GastoRealVisualizacion, FiltrosVisualizacion, OpcionFiltro } from '../../services/gasto-real-visualizacion.service';
+import * as XLSX from 'xlsx';
 
 @Component({
   selector: 'app-gasto-real-visualizar',
@@ -51,7 +52,6 @@ import { GastoRealVisualizacionService, GastoRealVisualizacion, FiltrosVisualiza
               id="filtroAnio"
               [(ngModel)]="filtros.anio"
               class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-sky-200 text-sm"
-              (change)="aplicarFiltros()"
             >
               <option value="">Todos los años</option>
               <option [value]="actualYear">{{ actualYear }}</option>
@@ -66,7 +66,6 @@ import { GastoRealVisualizacionService, GastoRealVisualizacion, FiltrosVisualiza
               id="filtroMes"
               [(ngModel)]="filtros.mes"
               class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-sky-200 text-sm"
-              (change)="aplicarFiltros()"
             >
               <option value="">Todos los meses</option>
               <option value="1">Enero</option>
@@ -91,7 +90,6 @@ import { GastoRealVisualizacionService, GastoRealVisualizacion, FiltrosVisualiza
               id="filtroPais"
               [(ngModel)]="filtros.pais"
               class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-sky-200 text-sm"
-              (change)="aplicarFiltros()"
               [disabled]="isLoadingFiltros"
             >
               <option value="">Todos los países</option>
@@ -108,7 +106,6 @@ import { GastoRealVisualizacionService, GastoRealVisualizacion, FiltrosVisualiza
               id="filtroRazonSocial"
               [(ngModel)]="filtros.razon_social"
               class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-sky-200 text-sm"
-              (change)="aplicarFiltros()"
               [disabled]="isLoadingFiltros"
             >
               <option value="">Todas las razones sociales</option>
@@ -125,7 +122,6 @@ import { GastoRealVisualizacionService, GastoRealVisualizacion, FiltrosVisualiza
               id="filtroCeCo"
               [(ngModel)]="filtros.ceco"
               class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-sky-200 text-sm"
-              (change)="aplicarFiltros()"
               [disabled]="isLoadingFiltros"
             >
               <option value="">Todos los centros de costo</option>
@@ -142,7 +138,6 @@ import { GastoRealVisualizacionService, GastoRealVisualizacion, FiltrosVisualiza
               id="filtroCuenta"
               [(ngModel)]="filtros.cuenta"
               class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-sky-200 text-sm"
-              (change)="aplicarFiltros()"
               [disabled]="isLoadingFiltros"
             >
               <option value="">Todas las cuentas</option>
@@ -159,7 +154,6 @@ import { GastoRealVisualizacionService, GastoRealVisualizacion, FiltrosVisualiza
               id="filtroMoneda"
               [(ngModel)]="filtros.moneda"
               class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-sky-200 text-sm"
-              (change)="aplicarFiltros()"
               [disabled]="isLoadingFiltros"
             >
               <option value="">Todas las monedas</option>
@@ -174,7 +168,7 @@ import { GastoRealVisualizacionService, GastoRealVisualizacion, FiltrosVisualiza
             <label class="block text-sm font-medium text-gray-700 mb-1">&nbsp;</label>
             <button
               class="w-full px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white text-sm font-medium rounded-md shadow transition"
-              (click)="cargarDatos()"
+              (click)="aplicarFiltrosLocales()"
               [disabled]="isLoading"
             >
               <svg *ngIf="isLoading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline" fill="none" viewBox="0 0 24 24">
@@ -215,6 +209,17 @@ import { GastoRealVisualizacionService, GastoRealVisualizacion, FiltrosVisualiza
         [isLoading]="isLoading">
       </app-data-grid-visualizar>
 
+      <!-- Botón Exportar Vista a Excel -->
+      <div *ngIf="!isLoading && gastosReales.length > 0" class="mt-6">
+        <button
+          class="w-full px-4 py-3 bg-sky-600 hover:bg-sky-700 text-white text-sm font-medium rounded-md shadow transition"
+          (click)="exportarVistaAExcel()"
+          [disabled]="isLoading"
+        >
+          Exportar Vista a Excel 📤
+        </button>
+      </div>
+
       <!-- Mensaje cuando no hay datos -->
       <div *ngIf="!isLoading && gastosReales.length === 0" 
            class="text-center py-12 text-gray-500">
@@ -232,7 +237,8 @@ export class GastoRealVisualizarComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   // Datos y estado
-  gastosReales: GastoRealVisualizacion[] = [];
+  gastosReales: GastoRealVisualizacion[] = []; // Datos que se muestran en la grilla (filtrados)
+  gastosOriginales: GastoRealVisualizacion[] = []; // Datos originales sin filtrar
   isLoading = false;
   isLoadingFiltros = false;
   mensaje = '';
@@ -321,23 +327,14 @@ export class GastoRealVisualizarComponent implements OnInit, OnDestroy {
     this.isLoading = true;
     this.mensaje = '';
 
-    // Limpiar filtros vacíos
-    const filtrosLimpios = this.limpiarFiltrosVacios(this.filtros);
-
-    this.gastoVisualizacionService.obtenerGastosReales(filtrosLimpios)
+    // Cargar todos los datos sin filtros desde la API
+    this.gastoVisualizacionService.obtenerGastosReales()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (datos) => {
-          this.gastosReales = datos;
+          this.gastosOriginales = datos;
+          this.aplicarFiltrosLocales(); // Aplicar filtros localmente
           this.isLoading = false;
-          
-          if (datos.length === 0) {
-            this.mensaje = 'No se encontraron gastos reales con los filtros aplicados.';
-            this.mensajeExito = false;
-          } else {
-            this.mensaje = `Se encontraron ${datos.length} registros.`;
-            this.mensajeExito = true;
-          }
         },
         error: (error) => {
           console.error('Error al cargar gastos reales:', error);
@@ -345,14 +342,77 @@ export class GastoRealVisualizarComponent implements OnInit, OnDestroy {
           this.mensajeExito = false;
           this.isLoading = false;
           this.gastosReales = [];
+          this.gastosOriginales = [];
         }
       });
   }
 
   aplicarFiltros(): void {
-    // Auto-aplicar filtros cuando cambie algún valor
-    // Se podría agregar un debounce aquí si es necesario
-    this.cargarDatos();
+    // Este método ya no se ejecuta automáticamente
+    // Los filtros solo se aplican cuando el usuario presiona "Buscar"
+    // Se mantiene para compatibilidad si se necesita en el futuro
+  }
+
+  aplicarFiltrosLocales(): void {
+    let datosFiltrados = [...this.gastosOriginales];
+
+    // Aplicar filtro de año
+    if (this.filtros.anio) {
+      datosFiltrados = datosFiltrados.filter(gasto => gasto.anio === this.filtros.anio);
+    }
+
+    // Aplicar filtro de mes
+    if (this.filtros.mes && this.filtros.mes !== '') {
+      const mesNumero = typeof this.filtros.mes === 'string' ? parseInt(this.filtros.mes) : this.filtros.mes;
+      datosFiltrados = datosFiltrados.filter(gasto => gasto.mes === mesNumero);
+    }
+
+    // Aplicar filtro de país
+    if (this.filtros.pais && this.filtros.pais !== '') {
+      datosFiltrados = datosFiltrados.filter(gasto => 
+        gasto.pais.toLowerCase().includes(this.filtros.pais!.toLowerCase())
+      );
+    }
+
+    // Aplicar filtro de razón social
+    if (this.filtros.razon_social && this.filtros.razon_social !== '') {
+      datosFiltrados = datosFiltrados.filter(gasto => 
+        gasto.razon_social.toLowerCase().includes(this.filtros.razon_social!.toLowerCase())
+      );
+    }
+
+    // Aplicar filtro de CeCo
+    if (this.filtros.ceco && this.filtros.ceco !== '') {
+      datosFiltrados = datosFiltrados.filter(gasto => 
+        gasto.ceco.toLowerCase().includes(this.filtros.ceco!.toLowerCase())
+      );
+    }
+
+    // Aplicar filtro de cuenta
+    if (this.filtros.cuenta && this.filtros.cuenta !== '') {
+      datosFiltrados = datosFiltrados.filter(gasto => 
+        gasto.cuenta.toLowerCase().includes(this.filtros.cuenta!.toLowerCase())
+      );
+    }
+
+    // Aplicar filtro de moneda
+    if (this.filtros.moneda && this.filtros.moneda !== '') {
+      datosFiltrados = datosFiltrados.filter(gasto => 
+        gasto.moneda.toLowerCase() === this.filtros.moneda!.toLowerCase()
+      );
+    }
+
+    // Actualizar los datos que se muestran en la grilla
+    this.gastosReales = datosFiltrados;
+
+    // Actualizar mensaje
+    if (datosFiltrados.length === 0) {
+      this.mensaje = 'No se encontraron gastos reales con los filtros aplicados.';
+      this.mensajeExito = false;
+    } else {
+      this.mensaje = `Se encontraron ${datosFiltrados.length} registros.`;
+      this.mensajeExito = true;
+    }
   }
 
   toggleFiltros(): void {
@@ -369,7 +429,79 @@ export class GastoRealVisualizarComponent implements OnInit, OnDestroy {
       cuenta: '',
       moneda: ''
     };
-    this.cargarDatos();
+    this.aplicarFiltrosLocales(); // Aplicar filtros localmente en lugar de recargar datos
+  }
+
+  exportarVistaAExcel(): void {
+    if (this.gastosReales.length === 0) {
+      this.mensaje = 'No hay datos para exportar';
+      this.mensajeExito = false;
+      return;
+    }
+
+    try {
+      // Preparar los datos filtrados para exportar (solo la data visible en la tabla)
+      const datosParaExportar = this.gastosReales.map((gasto, index) => ({
+        '#': index + 1,
+        'Id Gasto': gasto.id || '',
+        'País': gasto.pais,
+        'Razón Social': gasto.razon_social,
+        'Cuenta': gasto.cuenta,
+        'CeCo': gasto.ceco,
+        'Mes': this.gastoVisualizacionService.formatearMesConNombre(gasto.mes),
+        'Año': gasto.anio,
+        'Moneda': gasto.moneda,
+        'Monto': gasto.monto,
+        'Glosa': gasto.glosa,
+        'Usuario Registrado': `Usuario ${gasto.usuario_id}`,
+        'Fecha Registro': new Date(gasto.fecha_carga).toLocaleDateString('es-ES')
+      }));
+
+      // Crear el libro de trabajo (workbook)
+      const workbook = XLSX.utils.book_new();
+      
+      // Crear la hoja de trabajo con los datos
+      const worksheet = XLSX.utils.json_to_sheet(datosParaExportar);
+
+      // Configurar el ancho de las columnas
+      const columnWidths = [
+        { wch: 5 },   // #
+        { wch: 10 },  // Id Gasto
+        { wch: 15 },  // País
+        { wch: 25 },  // Razón Social
+        { wch: 35 },  // Cuenta
+        { wch: 12 },  // CeCo
+        { wch: 12 },  // Mes
+        { wch: 8 },   // Año
+        { wch: 10 },  // Moneda
+        { wch: 15 },  // Monto
+        { wch: 30 },  // Glosa
+        { wch: 18 },  // Usuario Registrado
+        { wch: 15 }   // Fecha Registro
+      ];
+      worksheet['!cols'] = columnWidths;
+
+      // Agregar la hoja al libro
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Gastos Reales');
+
+      // Generar nombre del archivo con fecha y hora actual
+      const now = new Date();
+      const fecha = now.toISOString().split('T')[0];
+      const hora = now.toTimeString().split(' ')[0].replace(/:/g, '');
+      const nombreArchivo = `gastos_reales_${fecha}_${hora}.xlsx`;
+
+      // Descargar el archivo
+      XLSX.writeFile(workbook, nombreArchivo);
+
+      // Mostrar mensaje de éxito en el recuadro de información
+      this.mensaje = `✅ Archivo exportado exitosamente: ${nombreArchivo} - Registros exportados: ${datosParaExportar.length}`;
+      this.mensajeExito = true;
+      
+    } catch (error) {
+      console.error('Error al exportar a Excel:', error);
+      this.mensaje = '❌ Error al exportar el archivo. Por favor, intenta nuevamente.';
+      this.mensajeExito = false;
+    }
   }
 
   private limpiarFiltrosVacios(filtros: FiltrosVisualizacion): FiltrosVisualizacion {

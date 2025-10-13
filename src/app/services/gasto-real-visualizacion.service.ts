@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { Observable, of, forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
@@ -199,10 +199,19 @@ export class GastoRealVisualizacionService {
    * Elimina un gasto real por ID
    */
   eliminarGastoReal(id: number): Observable<any> {
-    // TODO: Implementar llamada al endpoint real
-    // return this.http.delete(`${this.baseUrl}/gastos-reales/${id}`);
+    // Consumir la API real de eliminación
+    return this.http.delete(`${this.baseUrl}/budgeSystem/v1/actual-cost/${id}`);
+  }
+
+  /**
+   * Elimina múltiples gastos reales por sus IDs
+   */
+  eliminarMultiplesGastosReales(ids: number[]): Observable<any[]> {
+    // Crear array de observables para eliminar cada registro
+    const eliminaciones = ids.map(id => this.eliminarGastoReal(id));
     
-    return of({ success: true, message: 'Gasto eliminado correctamente' });
+    // Ejecutar todas las eliminaciones en paralelo
+    return forkJoin(eliminaciones);
   }
 
   /**
