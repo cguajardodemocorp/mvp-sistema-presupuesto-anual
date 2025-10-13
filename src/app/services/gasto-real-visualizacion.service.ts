@@ -215,6 +215,14 @@ export class GastoRealVisualizacionService {
   }
 
   /**
+   * Crea un nuevo gasto real
+   */
+  crearGastoReal(gastoData: any): Observable<any> {
+    // Consumir la API real para crear
+    return this.http.post(`${this.baseUrl}/budgeSystem/v1/actual-cost`, gastoData);
+  }
+
+  /**
    * Actualiza un gasto real
    */
   actualizarGastoReal(id: number, gasto: Partial<GastoRealVisualizacion>): Observable<GastoRealVisualizacion> {
