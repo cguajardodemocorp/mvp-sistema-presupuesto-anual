@@ -80,6 +80,38 @@ export interface OpcionFiltro {
   count?: number; // Opcional: cantidad de registros con este valor
 }
 
+export interface CountryApiResponse {
+  id: number;
+  nombre: string;
+  deletedAt: string | null;
+}
+
+export interface CompanyNameApiResponse {
+  id: number;
+  nombre: string;
+  deletedAt: string | null;
+}
+
+export interface CurrencyApiResponse {
+  id: number;
+  codigo: string;
+  descripcion: string;
+  deletedAt: string | null;
+}
+
+export interface AccountApiResponse {
+  id: number;
+  nombre: string;
+  deletedAt: string | null;
+}
+
+export interface CecoApiResponse {
+  id: number;
+  codigo: string;
+  descripcion: string;
+  deletedAt: string | null;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -188,84 +220,79 @@ export class GastoRealVisualizacionService {
    * Obtiene opciones disponibles para filtro de países
    */
   obtenerOpcionesPaises(): Observable<OpcionFiltro[]> {
-    // TODO: Implementar llamada al endpoint real
-    // return this.http.get<OpcionFiltro[]>(`${this.baseUrl}/filtros/paises`);
-    
-    return of([
-      { value: 'Colombia', label: 'Colombia', count: 125 },
-      { value: 'México', label: 'México', count: 89 },
-      { value: 'Perú', label: 'Perú', count: 67 },
-      { value: 'Chile', label: 'Chile', count: 54 },
-      { value: 'Argentina', label: 'Argentina', count: 32 }
-    ]);
+    // Consumir la API real
+    return this.http.get<CountryApiResponse[]>(`${this.baseUrl}/budgeSystem/v1/country`)
+      .pipe(
+        map((response: CountryApiResponse[]) => 
+          response.map(country => ({
+            value: country.nombre,
+            label: country.nombre
+          }))
+        )
+      );
   }
 
   /**
    * Obtiene opciones disponibles para filtro de razones sociales
    */
   obtenerOpcionesRazonesSociales(): Observable<OpcionFiltro[]> {
-    // TODO: Implementar llamada al endpoint real
-    // return this.http.get<OpcionFiltro[]>(`${this.baseUrl}/filtros/razones-sociales`);
-    
-    return of([
-      { value: 'DEMOCORP S.A.S.', label: 'DEMOCORP S.A.S.', count: 156 },
-      { value: 'DEMOCORP MEXICO S.A. DE C.V.', label: 'DEMOCORP MEXICO S.A. DE C.V.', count: 89 },
-      { value: 'DEMOCORP PERU S.A.C.', label: 'DEMOCORP PERU S.A.C.', count: 67 },
-      { value: 'DEMOCORP CHILE LTDA.', label: 'DEMOCORP CHILE LTDA.', count: 54 },
-      { value: 'DEMOCORP ARGENTINA S.A.', label: 'DEMOCORP ARGENTINA S.A.', count: 32 }
-    ]);
+    // Consumir la API real
+    return this.http.get<CompanyNameApiResponse[]>(`${this.baseUrl}/budgeSystem/v1/company-name`)
+      .pipe(
+        map((response: CompanyNameApiResponse[]) => 
+          response.map(company => ({
+            value: company.nombre,
+            label: company.nombre
+          }))
+        )
+      );
   }
 
   /**
    * Obtiene opciones disponibles para filtro de centros de costo
    */
   obtenerOpcionesCeCos(): Observable<OpcionFiltro[]> {
-    // TODO: Implementar llamada al endpoint real
-    // return this.http.get<OpcionFiltro[]>(`${this.baseUrl}/filtros/cecos`);
-    
-    return of([
-      { value: 'CC001', label: 'CC001 - Administración', count: 89 },
-      { value: 'CC002', label: 'CC002 - Ventas', count: 76 },
-      { value: 'CC003', label: 'CC003 - Operaciones', count: 65 },
-      { value: 'CC004', label: 'CC004 - IT', count: 54 },
-      { value: 'CC005', label: 'CC005 - RRHH', count: 43 },
-      { value: 'CC006', label: 'CC006 - Finanzas', count: 38 },
-      { value: 'CC007', label: 'CC007 - Marketing', count: 32 }
-    ]);
+    // Consumir la API real
+    return this.http.get<CecoApiResponse[]>(`${this.baseUrl}/budgeSystem/v1/ceco`)
+      .pipe(
+        map((response: CecoApiResponse[]) => 
+          response.map(ceco => ({
+            value: ceco.codigo,
+            label: ceco.codigo
+          }))
+        )
+      );
   }
 
   /**
    * Obtiene opciones disponibles para filtro de cuentas contables
    */
   obtenerOpcionesCuentas(): Observable<OpcionFiltro[]> {
-    // TODO: Implementar llamada al endpoint real
-    // return this.http.get<OpcionFiltro[]>(`${this.baseUrl}/filtros/cuentas`);
-    
-    return of([
-      { value: '51050501', label: '51050501 - Servicios de Consultoría', count: 78 },
-      { value: '51050502', label: '51050502 - Licencias de Software', count: 65 },
-      { value: '51050503', label: '51050503 - Mantenimiento', count: 54 },
-      { value: '51050504', label: '51050504 - Capacitación', count: 43 },
-      { value: '51050505', label: '51050505 - Outsourcing', count: 39 },
-      { value: '51050506', label: '51050506 - Suministros', count: 32 },
-      { value: '51050507', label: '51050507 - Transportes', count: 28 }
-    ]);
+    // Consumir la API real
+    return this.http.get<AccountApiResponse[]>(`${this.baseUrl}/budgeSystem/v1/account`)
+      .pipe(
+        map((response: AccountApiResponse[]) => 
+          response.map(account => ({
+            value: account.nombre,
+            label: account.nombre
+          }))
+        )
+      );
   }
 
   /**
    * Obtiene opciones disponibles para filtro de monedas
    */
   obtenerOpcionesMonedas(): Observable<OpcionFiltro[]> {
-    // TODO: Implementar llamada al endpoint real
-    // return this.http.get<OpcionFiltro[]>(`${this.baseUrl}/filtros/monedas`);
-    
-    return of([
-      { value: 'COP', label: 'COP - Peso Colombiano', count: 156 },
-      { value: 'MXN', label: 'MXN - Peso Mexicano', count: 89 },
-      { value: 'PEN', label: 'PEN - Sol Peruano', count: 67 },
-      { value: 'CLP', label: 'CLP - Peso Chileno', count: 54 },
-      { value: 'USD', label: 'USD - Dólar Americano', count: 45 },
-      { value: 'ARS', label: 'ARS - Peso Argentino', count: 32 }
-    ]);
+    // Consumir la API real
+    return this.http.get<CurrencyApiResponse[]>(`${this.baseUrl}/budgeSystem/v1/currency`)
+      .pipe(
+        map((response: CurrencyApiResponse[]) => 
+          response.map(currency => ({
+            value: currency.codigo,
+            label: currency.codigo
+          }))
+        )
+      );
   }
 }

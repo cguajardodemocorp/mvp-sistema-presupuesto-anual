@@ -96,7 +96,7 @@ import { GastoRealVisualizacionService, GastoRealVisualizacion, FiltrosVisualiza
             >
               <option value="">Todos los países</option>
               <option *ngFor="let opcion of opcionesPaises" [value]="opcion.value">
-                {{ opcion.label }} ({{ opcion.count }})
+                {{ opcion.label }}
               </option>
             </select>
           </div>
@@ -113,7 +113,7 @@ import { GastoRealVisualizacionService, GastoRealVisualizacion, FiltrosVisualiza
             >
               <option value="">Todas las razones sociales</option>
               <option *ngFor="let opcion of opcionesRazonesSociales" [value]="opcion.value">
-                {{ opcion.label }} ({{ opcion.count }})
+                {{ opcion.label }}
               </option>
             </select>
           </div>
@@ -130,7 +130,7 @@ import { GastoRealVisualizacionService, GastoRealVisualizacion, FiltrosVisualiza
             >
               <option value="">Todos los centros de costo</option>
               <option *ngFor="let opcion of opcionesCeCos" [value]="opcion.value">
-                {{ opcion.label }} ({{ opcion.count }})
+                {{ opcion.label }}
               </option>
             </select>
           </div>
@@ -147,7 +147,7 @@ import { GastoRealVisualizacionService, GastoRealVisualizacion, FiltrosVisualiza
             >
               <option value="">Todas las cuentas</option>
               <option *ngFor="let opcion of opcionesCuentas" [value]="opcion.value">
-                {{ opcion.label }} ({{ opcion.count }})
+                {{ opcion.label }}
               </option>
             </select>
           </div>
@@ -164,7 +164,7 @@ import { GastoRealVisualizacionService, GastoRealVisualizacion, FiltrosVisualiza
             >
               <option value="">Todas las monedas</option>
               <option *ngFor="let opcion of opcionesMonedas" [value]="opcion.value">
-                {{ opcion.label }} ({{ opcion.count }})
+                {{ opcion.label }}
               </option>
             </select>
           </div>
