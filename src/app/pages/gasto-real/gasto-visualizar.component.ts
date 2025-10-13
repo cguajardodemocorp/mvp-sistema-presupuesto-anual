@@ -1,9 +1,9 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, takeUntil, forkJoin } from 'rxjs';
 import { DataGridVisualizarComponent } from '../../components/data-grid-visualizar/data-grid-visualizar.component';
-import { GastoRealVisualizacionService, GastoRealVisualizacion, FiltrosVisualizacion } from '../../services/gasto-real-visualizacion.service';
+import { GastoRealVisualizacionService, GastoRealVisualizacion, FiltrosVisualizacion, OpcionFiltro } from '../../services/gasto-real-visualizacion.service';
 
 @Component({
   selector: 'app-gasto-real-visualizar',
@@ -12,21 +12,17 @@ import { GastoRealVisualizacionService, GastoRealVisualizacion, FiltrosVisualiza
   template: `
     <div class="bg-white rounded-2xl shadow-lg p-4 sm:p-6 lg:p-10 w-full border border-gray-100">
       <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-800 mb-2">
-        Visualizar Gastos Reales - Año {{ actualYear }}
+        Gasto Real - Año {{ actualYear }}
       </h1>
-      <p class="text-gray-600 mb-6 text-sm sm:text-base">
-        <b>Información:</b> Aquí puedes visualizar todos los gastos reales cargados en el sistema. 
-        Utiliza los filtros para buscar información específica.
-      </p>
 
       <!-- Sección de Filtros -->
       <div class="bg-gray-50 rounded-lg p-6 mb-6">
-        <h3 class="text-lg font-semibold text-gray-800 mb-4">Filtros de Búsqueda</h3>
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">Aplicar Filtros</h3>
         
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-4">
           <!-- Filtro por Año -->
           <div>
-            <label for="filtroAnio" class="block text-sm font-medium text-gray-700 mb-1">Año:</label>
+            <label for="filtroAnio" class="block text-sm font-medium text-gray-700 mb-1">Por Año:</label>
             <select
               id="filtroAnio"
               [(ngModel)]="filtros.anio"
@@ -41,7 +37,7 @@ import { GastoRealVisualizacionService, GastoRealVisualizacion, FiltrosVisualiza
 
           <!-- Filtro por Mes -->
           <div>
-            <label for="filtroMes" class="block text-sm font-medium text-gray-700 mb-1">Mes:</label>
+            <label for="filtroMes" class="block text-sm font-medium text-gray-700 mb-1">Por Mes:</label>
             <select
               id="filtroMes"
               [(ngModel)]="filtros.mes"
@@ -66,60 +62,115 @@ import { GastoRealVisualizacionService, GastoRealVisualizacion, FiltrosVisualiza
 
           <!-- Filtro por País -->
           <div>
-            <label for="filtroPais" class="block text-sm font-medium text-gray-700 mb-1">País:</label>
+            <label for="filtroPais" class="block text-sm font-medium text-gray-700 mb-1">Por País:</label>
             <select
               id="filtroPais"
               [(ngModel)]="filtros.pais"
               class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-sky-200 text-sm"
               (change)="aplicarFiltros()"
+              [disabled]="isLoadingFiltros"
             >
               <option value="">Todos los países</option>
-              <option value="Colombia">Colombia</option>
-              <option value="México">México</option>
-              <option value="Perú">Perú</option>
-              <option value="Chile">Chile</option>
+              <option *ngFor="let opcion of opcionesPaises" [value]="opcion.value">
+                {{ opcion.label }} ({{ opcion.count }})
+              </option>
+            </select>
+          </div>
+
+          <!-- Filtro por Razón Social -->
+          <div>
+            <label for="filtroRazonSocial" class="block text-sm font-medium text-gray-700 mb-1">Por Razón Social:</label>
+            <select
+              id="filtroRazonSocial"
+              [(ngModel)]="filtros.razon_social"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-sky-200 text-sm"
+              (change)="aplicarFiltros()"
+              [disabled]="isLoadingFiltros"
+            >
+              <option value="">Todas las razones sociales</option>
+              <option *ngFor="let opcion of opcionesRazonesSociales" [value]="opcion.value">
+                {{ opcion.label }} ({{ opcion.count }})
+              </option>
+            </select>
+          </div>
+
+          <!-- Filtro por CeCo -->
+          <div>
+            <label for="filtroCeCo" class="block text-sm font-medium text-gray-700 mb-1">Por CeCo:</label>
+            <select
+              id="filtroCeCo"
+              [(ngModel)]="filtros.ceco"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-sky-200 text-sm"
+              (change)="aplicarFiltros()"
+              [disabled]="isLoadingFiltros"
+            >
+              <option value="">Todos los centros de costo</option>
+              <option *ngFor="let opcion of opcionesCeCos" [value]="opcion.value">
+                {{ opcion.label }} ({{ opcion.count }})
+              </option>
+            </select>
+          </div>
+
+          <!-- Filtro por Cuenta -->
+          <div>
+            <label for="filtroCuenta" class="block text-sm font-medium text-gray-700 mb-1">Por Cuenta:</label>
+            <select
+              id="filtroCuenta"
+              [(ngModel)]="filtros.cuenta"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-sky-200 text-sm"
+              (change)="aplicarFiltros()"
+              [disabled]="isLoadingFiltros"
+            >
+              <option value="">Todas las cuentas</option>
+              <option *ngFor="let opcion of opcionesCuentas" [value]="opcion.value">
+                {{ opcion.label }} ({{ opcion.count }})
+              </option>
             </select>
           </div>
 
           <!-- Filtro por Moneda -->
           <div>
-            <label for="filtroMoneda" class="block text-sm font-medium text-gray-700 mb-1">Moneda:</label>
+            <label for="filtroMoneda" class="block text-sm font-medium text-gray-700 mb-1">Por Moneda:</label>
             <select
               id="filtroMoneda"
               [(ngModel)]="filtros.moneda"
               class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-sky-200 text-sm"
               (change)="aplicarFiltros()"
+              [disabled]="isLoadingFiltros"
             >
               <option value="">Todas las monedas</option>
-              <option value="COP">COP</option>
-              <option value="MXN">MXN</option>
-              <option value="PEN">PEN</option>
-              <option value="CLP">CLP</option>
-              <option value="USD">USD</option>
+              <option *ngFor="let opcion of opcionesMonedas" [value]="opcion.value">
+                {{ opcion.label }} ({{ opcion.count }})
+              </option>
             </select>
           </div>
-        </div>
 
-        <!-- Botones de acción -->
-        <div class="flex flex-wrap gap-2">
-          <button
-            class="px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white text-sm font-medium rounded-md shadow transition"
-            (click)="cargarDatos()"
-            [disabled]="isLoading"
-          >
-            <svg *ngIf="isLoading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            {{ isLoading ? 'Cargando...' : 'Buscar' }}
-          </button>
-          
-          <button
-            class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white text-sm font-medium rounded-md shadow transition"
-            (click)="limpiarFiltros()"
-          >
-            Limpiar Filtros
-          </button>
+          <!-- Botón Buscar - Ocupa el espacio de CeCo y Cuenta (50% del ancho) -->
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium text-gray-700 mb-1">&nbsp;</label>
+            <button
+              class="w-full px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white text-sm font-medium rounded-md shadow transition"
+              (click)="cargarDatos()"
+              [disabled]="isLoading"
+            >
+              <svg *ngIf="isLoading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              {{ isLoading ? 'Cargando...' : 'Buscar' }}
+            </button>
+          </div>
+
+          <!-- Botón Limpiar Filtros - Ocupa el espacio de Moneda y Razón Social (50% del ancho) -->
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium text-gray-700 mb-1">&nbsp;</label>
+            <button
+              class="w-full px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white text-sm font-medium rounded-md shadow transition"
+              (click)="limpiarFiltros()"
+            >
+              Limpiar Filtros
+            </button>
+          </div>
         </div>
       </div>
 
@@ -157,26 +208,86 @@ export class GastoRealVisualizarComponent implements OnInit, OnDestroy {
   // Datos y estado
   gastosReales: GastoRealVisualizacion[] = [];
   isLoading = false;
+  isLoadingFiltros = false;
   mensaje = '';
   mensajeExito = false;
+
+  // Opciones para los filtros (cargadas desde APIs)
+  opcionesPaises: OpcionFiltro[] = [];
+  opcionesRazonesSociales: OpcionFiltro[] = [];
+  opcionesCeCos: OpcionFiltro[] = [];
+  opcionesCuentas: OpcionFiltro[] = [];
+  opcionesMonedas: OpcionFiltro[] = [];
 
   // Filtros
   filtros: FiltrosVisualizacion = {
     anio: this.actualYear,
-    mes: undefined,
+    mes: '', // Establecer como string vacío para que seleccione "Todos los meses"
     pais: '',
+    razon_social: '',
+    ceco: '',
+    cuenta: '',
     moneda: ''
   };
 
   constructor(private gastoVisualizacionService: GastoRealVisualizacionService) {}
 
   ngOnInit(): void {
+    this.cargarOpcionesFiltros();
     this.cargarDatos();
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  cargarOpcionesFiltros(): void {
+    this.isLoadingFiltros = true;
+
+    // Cargar todas las opciones de filtros en paralelo
+    forkJoin({
+      paises: this.gastoVisualizacionService.obtenerOpcionesPaises(),
+      razonesSociales: this.gastoVisualizacionService.obtenerOpcionesRazonesSociales(),
+      cecos: this.gastoVisualizacionService.obtenerOpcionesCeCos(),
+      cuentas: this.gastoVisualizacionService.obtenerOpcionesCuentas(),
+      monedas: this.gastoVisualizacionService.obtenerOpcionesMonedas()
+    })
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (opciones) => {
+        this.opcionesPaises = opciones.paises;
+        this.opcionesRazonesSociales = opciones.razonesSociales;
+        this.opcionesCeCos = opciones.cecos;
+        this.opcionesCuentas = opciones.cuentas;
+        this.opcionesMonedas = opciones.monedas;
+        this.isLoadingFiltros = false;
+      },
+      error: (error) => {
+        console.error('Error al cargar opciones de filtros:', error);
+        this.isLoadingFiltros = false;
+        // Usar opciones por defecto en caso de error
+        this.cargarOpcionesPorDefecto();
+      }
+    });
+  }
+
+  private cargarOpcionesPorDefecto(): void {
+    // Opciones de respaldo en caso de que falle la carga desde API
+    this.opcionesPaises = [
+      { value: 'Colombia', label: 'Colombia' },
+      { value: 'México', label: 'México' },
+      { value: 'Perú', label: 'Perú' },
+      { value: 'Chile', label: 'Chile' }
+    ];
+    
+    this.opcionesMonedas = [
+      { value: 'COP', label: 'COP' },
+      { value: 'MXN', label: 'MXN' },
+      { value: 'PEN', label: 'PEN' },
+      { value: 'CLP', label: 'CLP' },
+      { value: 'USD', label: 'USD' }
+    ];
   }
 
   cargarDatos(): void {
@@ -220,8 +331,11 @@ export class GastoRealVisualizarComponent implements OnInit, OnDestroy {
   limpiarFiltros(): void {
     this.filtros = {
       anio: this.actualYear,
-      mes: undefined,
+      mes: '', // Mantener consistencia con la inicialización
       pais: '',
+      razon_social: '',
+      ceco: '',
+      cuenta: '',
       moneda: ''
     };
     this.cargarDatos();

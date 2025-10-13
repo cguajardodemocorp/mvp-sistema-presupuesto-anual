@@ -46,16 +46,18 @@ import { CommonModule } from '@angular/common';
           <thead *ngIf="tipoGrid === 'gasto-real'">
             <tr>
               <th>#</th>
+              <th>Id Gasto</th>
               <th>País</th>
               <th>Razón Social</th>
-              <th>CeCo</th>
               <th>Cuenta</th>
+              <th>CeCo</th>
+              <th>Mes</th>
+              <th>Año</th>
               <th>Moneda</th>
               <th>Monto</th>
-              <th>Glosa/Descripción</th>
-              <th>Año</th>
-              <th>Mes</th>
-              <th>Fecha Carga</th>
+              <th>Glosa</th>
+              <th>Usuario Registrado</th>
+              <th>Fecha Registro</th>
             </tr>
           </thead>
           
@@ -94,15 +96,17 @@ import { CommonModule } from '@angular/common';
               <tr *ngFor="let row of paginatedData; let i = index" 
                   [ngClass]="{'fade-in': true}">
                 <td class="row-number">{{ (currentPage - 1) * pageSize + i + 1 }}</td>
+                <td class="id-gasto">{{ row.id || '-' }}</td>
                 <td>{{ row.pais }}</td>
                 <td>{{ row.razon_social }}</td>
-                <td>{{ row.ceco }}</td>
                 <td>{{ row.cuenta }}</td>
+                <td>{{ row.ceco }}</td>
+                <td>{{ formatMes(row.mes) }}</td>
+                <td>{{ row.anio }}</td>
                 <td>{{ row.moneda }}</td>
                 <td class="amount">{{ formatAmount(row.monto) }}</td>
                 <td>{{ row.glosa || '-' }}</td>
-                <td>{{ row.anio }}</td>
-                <td>{{ formatMes(row.mes) }}</td>
+                <td>{{ getUsuarioRegistrado(row.usuario_id) }}</td>
                 <td>{{ formatFecha(row.fecha_carga) }}</td>
               </tr>
             </ng-container>
@@ -210,6 +214,14 @@ import { CommonModule } from '@angular/common';
       font-weight: 600;
       color: var(--gray-500);
       width: 60px;
+    }
+
+    .id-gasto {
+      font-weight: 600;
+      color: var(--primary-blue);
+      font-family: 'Courier New', monospace;
+      text-align: center;
+      width: 80px;
     }
 
     .amount {
@@ -363,5 +375,18 @@ export class DataGridVisualizarComponent {
     } catch {
       return fecha;
     }
+  }
+
+  getUsuarioRegistrado(usuarioId: number): string {
+    // TODO: Implementar mapeo real de usuarios cuando esté disponible
+    // Esto debería obtener el nombre del usuario desde un servicio
+    const usuarios: { [key: number]: string } = {
+      1: 'Admin Sistema',
+      2: 'Usuario Demo',
+      3: 'Analista Financiero',
+      4: 'Supervisor Contable'
+    };
+    
+    return usuarios[usuarioId] || `Usuario ${usuarioId}`;
   }
 }
