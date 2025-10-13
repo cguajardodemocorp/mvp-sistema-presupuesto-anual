@@ -7,11 +7,6 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule],
   template: `
     <div class="data-grid-container">
-      <div class="grid-header">
-        <h3>{{ getTituloGrid() }}</h3>
-        <span class="record-count">{{ data.length }} registros</span>
-      </div>
-      
       <div class="table-container">
         <table class="table">
           <!-- Header para Plan Anual -->
@@ -347,7 +342,7 @@ export class DataGridVisualizarComponent {
       case 'plan-anual':
         return 'Plan Anual - Datos Guardados';
       case 'gasto-real':
-        return 'Gastos Reales - Datos Guardados';
+        return ' ';
       default:
         return 'Datos Guardados';
     }

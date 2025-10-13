@@ -15,11 +15,35 @@ import { GastoRealVisualizacionService, GastoRealVisualizacion, FiltrosVisualiza
         Gasto Real - Año {{ actualYear }}
       </h1>
 
-      <!-- Sección de Filtros -->
-      <div class="bg-gray-50 rounded-lg p-6 mb-6">
-        <h3 class="text-lg font-semibold text-gray-800 mb-4">Aplicar Filtros</h3>
+      <!-- Sección de Filtros Desplegable -->
+      <div class="bg-gray-50 rounded-lg mb-6 overflow-hidden">
+        <!-- Header desplegable -->
+        <div 
+          class="flex items-center justify-between p-6 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
+          (click)="toggleFiltros()"
+        >
+          <h3 class="text-lg font-semibold text-gray-800">Aplicar Filtros</h3>
+          <svg 
+            class="w-5 h-5 text-gray-600 transition-transform duration-200"
+            [class.rotate-180]="mostrarFiltros"
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24"
+          >
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+          </svg>
+        </div>
         
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-4">
+        <!-- Contenido desplegable -->
+        <div 
+          class="transition-all duration-300 ease-in-out"
+          [ngClass]="{
+            'max-h-0 opacity-0 overflow-hidden': !mostrarFiltros,
+            'max-h-screen opacity-100': mostrarFiltros
+          }"
+        >
+          <div class="px-6 pb-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-4">
           <!-- Filtro por Año -->
           <div>
             <label for="filtroAnio" class="block text-sm font-medium text-gray-700 mb-1">Por Año:</label>
@@ -171,11 +195,13 @@ import { GastoRealVisualizacionService, GastoRealVisualizacion, FiltrosVisualiza
               Limpiar Filtros
             </button>
           </div>
+            </div>
+          </div>
         </div>
       </div>
 
       <!-- Mensajes de estado -->
-      <div *ngIf="mensaje" class="mb-4">
+      <div *ngIf="mensaje">
         <div [ngClass]="mensajeExito ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'" 
              class="rounded px-4 py-2">
           {{ mensaje }}
@@ -211,6 +237,7 @@ export class GastoRealVisualizarComponent implements OnInit, OnDestroy {
   isLoadingFiltros = false;
   mensaje = '';
   mensajeExito = false;
+  mostrarFiltros = false; // Controla si los filtros están desplegados o no
 
   // Opciones para los filtros (cargadas desde APIs)
   opcionesPaises: OpcionFiltro[] = [];
@@ -326,6 +353,10 @@ export class GastoRealVisualizarComponent implements OnInit, OnDestroy {
     // Auto-aplicar filtros cuando cambie algún valor
     // Se podría agregar un debounce aquí si es necesario
     this.cargarDatos();
+  }
+
+  toggleFiltros(): void {
+    this.mostrarFiltros = !this.mostrarFiltros;
   }
 
   limpiarFiltros(): void {
